@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: ${PROJECT_NAME:-breeyard}-postgres
+    restart: "no"
+    profiles: ["breeyard"]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-breeyard}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-breeyard}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '${POSTGRES_PORT:-5433}:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-breeyard}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: ${PROJECT_NAME:-breeyard}-redis
+    restart: "no"
+    profiles: ["breeyard"]
+    command: redis-server --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    volumes:
+      - redis_data:/data
+    ports:
+      - '${REDIS_PORT:-6380}:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--pass', '${REDIS_PASSWORD}', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: ${PROJECT_NAME:-breeyard}-mailpit
+    restart: "no"
+    profiles: ["breeyard"]
+    ports:
+      - '${MAILPIT_SMTP_PORT:-1026}:1025'
+      - '${MAILPIT_UI_PORT:-8026}:8025'
+
+volumes:
+  postgres_data:
+  redis_data:

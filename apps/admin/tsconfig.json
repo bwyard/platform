@@ -1,0 +1,22 @@
+{
+  "extends": "./.svelte-kit/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "$lib": ["./src/lib"],
+      "$lib/*": ["./src/lib/*"],
+      "@breeyard/shared": ["../../packages/core/shared/src/index.ts"],
+      "@breeyard/auth": ["../../packages/core/auth/src/index.ts"],
+      "@breeyard/theme": ["../../packages/core/theme/src/index.ts"],
+      "@breeyard/ui": ["../../packages/core/ui/src/index.ts"],
+      "@breeyard/audit": ["../../packages/ops/audit/src/index.ts"],
+      "@breeyard/analytics": ["../../packages/ops/analytics/src/index.ts"],
+      "@breeyard/messaging": ["../../packages/client-portal/messaging/src/index.ts"]
+    }
+  }
+}

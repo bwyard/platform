@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.svelte-kit/
+.output/
+
+# TypeScript — compiled JS/declarations emitted alongside source (tsc side-effect)
+packages/**/*.js
+packages/**/*.js.map
+packages/**/*.d.ts
+packages/**/*.d.ts.map
+# Keep drizzle config and migration SQL (not compiled output)
+!packages/**/drizzle.config.ts
+!packages/**/migrations/**
+*.tsbuildinfo
+
+# Nx
+.nx/cache
+.nx/workspace-data
+
+# Turbo
+.turbo/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Test
+coverage/
+.vitest/
+test-results/
+playwright-report/
+
+# Docker
+infra/docker/data/
+infra/docker/volumes/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

@@ -1,0 +1,69 @@
+{
+  "name": "breeyard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "test:e2e": "playwright test",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "prettier --write \"**/*.{ts,js,json,css,md,svelte}\"",
+    "format:check": "prettier --check \"**/*.{ts,js,json,css,md,svelte}\"",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@eslint/js": "^10.0.1",
+    "@nx/eslint": "^22.6.4",
+    "@nx/js": "^22.6.4",
+    "@nx/node": "^22.6.4",
+    "@nx/playwright": "^22.6.4",
+    "@nx/vitest": "^22.6.4",
+    "@playwright/test": "^1.59.1",
+    "@tailwindcss/vite": "^4.2.2",
+    "@vitest/coverage-v8": "^3.2.0",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "nx": "^22.6.4",
+    "prettier": "~3.5.3",
+    "prettier-plugin-svelte": "^3.3.0",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "tailwindcss": "^4.2.2",
+    "turbo": "^2.9.4",
+    "typescript": "^5.8.0",
+    "typescript-eslint": "^8.58.0"
+  },
+  "lint-staged": {
+    "*.{ts,js,svelte}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
+  },
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": ">=6.4.2"
+    },
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "msgpackr-extract",
+      "nx",
+      "unrs-resolver"
+    ]
+  }
+}
