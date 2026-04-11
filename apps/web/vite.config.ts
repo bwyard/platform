@@ -6,4 +6,5 @@ export default defineConfig({
   // Load .env from monorepo root so INTERNAL_API_URL / PUBLIC_API_URL are available
   envDir: '../../',
   plugins: [tailwindcss(), sveltekit()],
+  server: { port: 3011, strictPort: true },
 });

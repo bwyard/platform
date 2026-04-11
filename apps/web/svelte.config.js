@@ -6,6 +6,13 @@ const config = {
   preprocess: vitePreprocess(),
   kit: {
     adapter: adapter(),
+    alias: {
+      '@breeyard/shared': '../../packages/core/shared/src/index.ts',
+      '@breeyard/auth': '../../packages/core/auth/src/index.ts',
+      '@breeyard/seo': '../../packages/core/seo/src/index.ts',
+      '@breeyard/theme': '../../packages/core/theme/src/index.ts',
+      '@breeyard/ui': '../../packages/core/ui/src/index.ts',
+    },
   },
 };
 

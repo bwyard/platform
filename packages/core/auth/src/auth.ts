@@ -25,6 +25,14 @@ export const createAuth = () =>
     session: {
       expiresIn: 60 * 60 * 24 * 30, // 30 days
       updateAge: 60 * 60 * 24,
+      cookieCache: {
+        enabled: true,
+        maxAge: 60 * 5,
+      },
+    },
+    advanced: {
+      cookiePrefix: 'breeyard',
+      generateId: () => crypto.randomUUID(),
     },
     trustedOrigins: (process.env.TRUSTED_ORIGINS ?? '').split(',').filter(Boolean),
   });
