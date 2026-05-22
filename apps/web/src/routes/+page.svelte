@@ -23,11 +23,11 @@
 
 <section class="border-t border-gray-100 bg-gray-50 py-20">
   <div class="mx-auto max-w-5xl px-6">
-    <h2 class="text-2xl font-semibold text-gray-900">What I do</h2>
+    <h2 class="text-2xl font-semibold text-gray-900">What we do</h2>
     <p class="mt-4 max-w-2xl text-gray-600">
-      I work with small-to-mid businesses that need senior technical leadership without the overhead
-      of a full-time hire. Whether you're building from scratch, scaling a team, or untangling years
-      of technical debt — I help you move with intention.
+      We work with small-to-mid businesses that need senior technical leadership without the
+      overhead of a full-time hire. Whether you're building from scratch, scaling a team, or
+      untangling years of technical debt — we help you move with intention.
     </p>
     <a
       href="/services"

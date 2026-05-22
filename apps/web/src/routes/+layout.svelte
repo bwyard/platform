@@ -32,6 +32,6 @@
 
 <footer class="border-t border-gray-200 bg-white">
   <div class="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-gray-500">
-    <p>&copy; {new Date().getFullYear()} Bree Yard &mdash; 8 of Wands</p>
+    <p>&copy; {new Date().getFullYear()} 8 of Wands</p>
   </div>
 </footer>

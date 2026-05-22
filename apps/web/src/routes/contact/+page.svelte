@@ -7,7 +7,7 @@
 <section class="mx-auto max-w-5xl px-6 py-20">
   <h1 class="text-4xl font-bold tracking-tight text-gray-900">Contact</h1>
   <p class="mt-4 max-w-xl text-lg text-gray-600">
-    Most engagements start with a short conversation. Reach out and let's figure out if there's a
+    Most engagements start with a short conversation. Reach out and we'll figure out if there's a
     fit.
   </p>
 </section>
@@ -32,10 +32,10 @@
       </dl>
 
       <div class="mt-12 border-t border-gray-100 pt-10">
-        <h3 class="text-base font-semibold text-gray-900">Book a call</h3>
+        <h3 class="text-base font-semibold text-gray-900">Get started</h3>
         <p class="mt-2 text-sm text-gray-600">
-          Prefer to jump straight in? Email me with a few sentences about what you're working on and
-          what kind of help you're looking for. I'll reply with availability.
+          Send a few sentences about what you're working on and what kind of help you're looking
+          for. We'll reply with availability.
         </p>
       </div>
     </div>

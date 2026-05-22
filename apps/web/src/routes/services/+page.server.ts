@@ -13,7 +13,7 @@ const services: ServiceItem[] = [
   {
     title: 'Technical Strategy & Roadmap',
     description:
-      'Translate business goals into a clear, prioritised technical plan. I work with founders and leadership to define what to build, when to build it, and where to invest — so your team ships the right things in the right order.',
+      'Translate business goals into a clear, prioritised technical plan. Working with founders and leadership to define what to build, when to build it, and where to invest — so your team ships the right things in the right order.',
   },
   {
     title: 'Architecture Review',
@@ -23,12 +23,12 @@ const services: ServiceItem[] = [
   {
     title: 'Team Mentorship',
     description:
-      'Hands-on support for your engineers — code reviews, pairing sessions, career conversations, and process improvements. I help teams level up without burning out their senior individual contributors.',
+      'Hands-on support for your engineers — code reviews, pairing sessions, career conversations, and process improvements. Helping teams level up without burning out their senior individual contributors.',
   },
   {
     title: 'Vendor & Tech Selection',
     description:
-      'Evaluating a new database, cloud provider, third-party API, or framework? I run the due diligence: technical fit, operational overhead, cost at scale, and vendor risk. You get a clear recommendation with the reasoning behind it.',
+      'Evaluating a new database, cloud provider, third-party API, or framework? We run the due diligence: technical fit, operational overhead, cost at scale, and vendor risk. You get a clear recommendation with the reasoning behind it.',
   },
   {
     title: 'CTO-as-a-Service Retainer',
