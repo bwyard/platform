@@ -3,12 +3,92 @@
 // Run: tsx --env-file=../../.env src/seed.ts
 // ============================================================
 
+import { hash } from 'bcryptjs';
+import { eq } from 'drizzle-orm';
 import { getDatabase } from './client.js';
-import { navItems, platformConfig, blocks, clients, projects } from './schema/index.js';
+import {
+  users,
+  accounts,
+  navItems,
+  platformConfig,
+  blocks,
+  clients,
+  projects,
+} from './schema/index.js';
 
 // ── helpers ─────────────────────────────────────────────────
 
 const db = getDatabase();
+const randomId = () => crypto.randomUUID();
+
+// ── users ────────────────────────────────────────────────────
+
+const seedUsers = async (): Promise<{ adminId: string; clientUserId: string }> => {
+  console.warn('[seed] users…');
+
+  const SEED_USERS = [
+    {
+      email: process.env.SEED_ADMIN_EMAIL ?? 'admin@example.com',
+      name: process.env.SEED_ADMIN_NAME ?? 'Admin',
+      password: process.env.SEED_ADMIN_PASSWORD ?? 'test',
+      role: 'admin' as const,
+      fixedId: 'user-admin',
+    },
+    {
+      email: 'client@example.com',
+      name: 'Test Client',
+      password: 'test',
+      role: 'client' as const,
+      fixedId: 'user-client',
+    },
+  ];
+
+  const ids: Record<string, string> = {};
+
+  for (const u of SEED_USERS) {
+    const existing = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, u.email))
+      .limit(1);
+
+    if (existing.length > 0 && existing[0]) {
+      console.warn(`[seed]   skip  ${u.email} — already exists`);
+      ids[u.fixedId] = existing[0].id;
+      continue;
+    }
+
+    const passwordHash = await hash(u.password, 12);
+
+    await db.insert(users).values({
+      id: u.fixedId,
+      email: u.email,
+      name: u.name,
+      role: u.role,
+      emailVerified: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    await db.insert(accounts).values({
+      id: randomId(),
+      userId: u.fixedId,
+      accountId: u.email,
+      providerId: 'credential',
+      password: passwordHash,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    ids[u.fixedId] = u.fixedId;
+    console.warn(`[seed]   created ${u.email} (role=${u.role})`);
+  }
+
+  return {
+    adminId: ids['user-admin'] ?? 'user-admin',
+    clientUserId: ids['user-client'] ?? 'user-client',
+  };
+};
 
 // ── nav items ───────────────────────────────────────────────
 
@@ -109,7 +189,7 @@ const seedBlocks = async (): Promise<void> => {
 
 // ── clients + projects ───────────────────────────────────────
 
-const seedClientsAndProjects = async (): Promise<void> => {
+const seedClientsAndProjects = async (clientUserId: string): Promise<void> => {
   console.warn('[seed] clients…');
 
   const clientRows = [
@@ -119,9 +199,9 @@ const seedClientsAndProjects = async (): Promise<void> => {
       email: 'client@example.com',
       company: 'Example Co.',
       techLevel: 'medium' as const,
-      status: 'prospect' as const,
+      status: 'active' as const,
       notes: 'Seeded dev fixture — safe to delete.',
-      userId: null,
+      userId: clientUserId,
     },
   ];
 
@@ -154,12 +234,15 @@ const seedClientsAndProjects = async (): Promise<void> => {
 const main = async (): Promise<void> => {
   console.warn('[seed] starting…');
 
+  const { clientUserId } = await seedUsers();
   await seedNavItems();
   await seedPlatformConfig();
   await seedBlocks();
-  await seedClientsAndProjects();
+  await seedClientsAndProjects(clientUserId);
 
   console.warn('[seed] complete');
+  console.warn('  admin login:  admin@example.com / test');
+  console.warn('  client login: client@example.com / test');
 };
 
 main().catch((err: unknown) => {
