@@ -35,6 +35,11 @@ const services: ServiceItem[] = [
     description:
       'Ongoing fractional CTO engagement — typically 8–16 hours per month. Executive presence in leadership meetings, technical due diligence for fundraising, and a consistent senior voice in architectural decisions as your company grows.',
   },
+  {
+    title: 'Hosting & Managed Infrastructure',
+    description:
+      'EU-based hosting for small businesses that want a reliable, secure home for their site or app without managing servers themselves. We handle the setup, maintenance, uptime monitoring, and backups — you focus on running your business.',
+  },
 ];
 
 export const load: PageServerLoad = () => {
