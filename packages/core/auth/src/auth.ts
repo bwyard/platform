@@ -22,6 +22,16 @@ export const createAuth = () =>
       enabled: true,
       requireEmailVerification: false,
     },
+    user: {
+      additionalFields: {
+        role: {
+          type: 'string',
+          required: false,
+          defaultValue: 'client',
+          input: false, // not settable by the user themselves
+        },
+      },
+    },
     session: {
       expiresIn: 60 * 60 * 24 * 30, // 30 days
       updateAge: 60 * 60 * 24,

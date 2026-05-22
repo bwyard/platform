@@ -1,9 +1,9 @@
 // ============================================================
-// CRM root layout — auth guard
-// Public routes: /login only. Everything else requires a session.
+// CRM root layout — auth guard (admin only)
+// Public routes: /login only. Everything else requires admin role.
 // ============================================================
 
-import { redirect } from '@sveltejs/kit';
+import { redirect, error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { getSession } from '$lib/server/session';
 
@@ -19,6 +19,11 @@ export const load: LayoutServerLoad = async (event) => {
   if (!session) {
     // eslint-disable-next-line @typescript-eslint/only-throw-error
     throw redirect(302, '/login');
+  }
+
+  if (session.user.role !== 'admin') {
+    // eslint-disable-next-line @typescript-eslint/only-throw-error
+    throw error(403, 'Access denied');
   }
 
   return { user: session.user };
