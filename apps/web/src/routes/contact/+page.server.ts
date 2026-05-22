@@ -1,5 +1,5 @@
 // ============================================================
-// Home page server load
+// Contact page server load
 // ============================================================
 
 import type { PageServerLoad } from './$types';

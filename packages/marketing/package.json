@@ -1,5 +1,5 @@
 {
-  "name": "@breeyard/database",
+  "name": "@breeyard/marketing",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -15,19 +15,9 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx --env-file=../../.env src/seed.ts"
-  },
-  "dependencies": {
-    "drizzle-orm": "^0.43.1",
-    "postgres": "^3.4.5"
+    "test": "vitest run"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "drizzle-kit": "^0.31.1",
     "typescript": "^5.8.0"
   }
 }

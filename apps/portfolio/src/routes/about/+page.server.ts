@@ -1,5 +1,5 @@
 // ============================================================
-// Home page server load
+// About page — static content.
 // ============================================================
 
 import type { PageServerLoad } from './$types';

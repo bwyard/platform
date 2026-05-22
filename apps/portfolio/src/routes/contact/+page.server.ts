@@ -1,5 +1,5 @@
 // ============================================================
-// Home page server load
+// Contact page — static content, no form.
 // ============================================================
 
 import type { PageServerLoad } from './$types';

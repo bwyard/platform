@@ -30,6 +30,7 @@
     { "path": "./packages/ops/audit" },
     { "path": "./packages/ops/analytics" },
     { "path": "./packages/billing" },
+    { "path": "./packages/marketing" },
     { "path": "./packages/infra/consent" },
     { "path": "./packages/extended/gdpr" },
     { "path": "./packages/extended/maintenance" },
