@@ -35,6 +35,11 @@ export const buildServer = async () => {
   // ---- Error handler ----
   errorHandler(server);
 
+  // ---- Not found — return empty 404, no body ----
+  server.setNotFoundHandler((_req, reply) => {
+    reply.code(404).send();
+  });
+
   // ---- Routes ----
   await server.register(healthRoutes, { prefix: '/health' });
   await server.register(authRoutes, { prefix: '/auth' });
