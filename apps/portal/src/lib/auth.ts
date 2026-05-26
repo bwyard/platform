@@ -1,0 +1,18 @@
+// ============================================================
+// @breeyard/portal — auth client
+// Points to the Fastify API, not the portal app itself.
+// ============================================================
+
+import { createAuthClient } from 'better-auth/svelte';
+
+const apiBase: string =
+  typeof window !== 'undefined'
+    ? ((import.meta.env.PUBLIC_API_URL as string | undefined) ?? 'http://localhost:3010')
+    : 'http://localhost:3010';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const authClient: ReturnType<typeof createAuthClient<any>> = createAuthClient({
+  baseURL: apiBase,
+});
+
+export const { signIn, signOut, useSession } = authClient;

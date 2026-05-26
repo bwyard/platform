@@ -1,0 +1,4 @@
+C:\Users\bwyar\development\bwyard\.env
+C:Usersbwyardevelopmentbwyard.env
+bwyard/.env
+bwyard

@@ -1,8 +1,11 @@
 // ============================================================
 // Users schema — better-auth compatible
+// Roles: admin (CRM + CMS access), client (portal access only)
 // ============================================================
 
 import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+
+export type UserRole = 'admin' | 'client';
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -10,6 +13,9 @@ export const users = pgTable('users', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
   image: text('image'),
+  role: text('role', { enum: ['admin', 'client'] })
+    .notNull()
+    .default('client'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

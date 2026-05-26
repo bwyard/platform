@@ -15,6 +15,10 @@
     "lint": "eslint src",
     "test": "vitest"
   },
+  "dependencies": {
+    "@faker-js/faker": "^10.4.0",
+    "vitest": "^3.2.0"
+  },
   "devDependencies": {
     "typescript": "^5.8.0"
   }

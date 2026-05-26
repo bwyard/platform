@@ -1,11 +1,9 @@
 // ============================================================
-// Root layout server load — fetches nav for all pages
+// Root layout server load — no dynamic data needed for static site
 // ============================================================
 
 import type { LayoutServerLoad } from './$types';
-import { fetchNav } from '$lib/server/api';
 
-export const load: LayoutServerLoad = async () => {
-  const nav = await fetchNav().catch(() => []);
-  return { nav };
+export const load: LayoutServerLoad = () => {
+  return {};
 };

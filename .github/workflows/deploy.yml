@@ -1,0 +1,116 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Pre-deploy health check
+        run: |
+          curl --fail --silent --max-time 10 http://${{ secrets.DEPLOY_HOST }}:3400/health \
+            || echo "::warning::Pre-deploy health check failed — API may already be down"
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -euo pipefail
+
+            APP_DIR="/home/bree/app/breeyard"
+            COMPOSE_FILE="$APP_DIR/infra/docker/docker-compose.prod.yml"
+            ENV_FILE="/home/bree/stacks/breeyard/.env.prod"
+            COMPOSE="sudo docker compose -f $COMPOSE_FILE --env-file $ENV_FILE"
+
+            if [ ! -d "$APP_DIR/.git" ]; then
+              git clone git@github.com:bwyard/platform.git "$APP_DIR"
+            fi
+
+            cd "$APP_DIR"
+            git fetch origin main
+            git reset --hard origin/main
+
+            PREVIOUS_COMMIT=$(git rev-parse HEAD~1 2>/dev/null || echo "")
+
+            # Build all images
+            $COMPOSE build --no-cache api web cms crm portal portfolio
+
+            # Start infra first
+            $COMPOSE up -d --no-build postgres redis
+            sleep 5
+
+            # Run migrations
+            NETWORK="breeyard_internal"
+            POSTGRES_PASSWORD=$(grep -E '^POSTGRES_PASSWORD=' "$ENV_FILE" | cut -d= -f2-)
+            sudo docker run --rm \
+              --network "$NETWORK" \
+              --env-file "$ENV_FILE" \
+              -e DATABASE_URL="postgresql://breeyard:${POSTGRES_PASSWORD}@breeyard-postgres:5432/breeyard" \
+              -e CI=true \
+              -v "$APP_DIR:/workspace" \
+              -w /workspace \
+              node:22-alpine \
+              sh -c "corepack enable \
+                && corepack prepare pnpm@10.32.1 --activate \
+                && pnpm install --frozen-lockfile \
+                && pnpm --filter @breeyard/database db:migrate" \
+              || echo "::warning::Migration failed — check DB manually"
+
+            # Rolling restart: api first, then frontends
+            for service in api web cms crm portal portfolio; do
+              $COMPOSE up -d --no-build $service
+              sleep 3
+            done
+
+            # Health check
+            sleep 10
+            HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+              --max-time 15 http://localhost:3400/health || echo "000")
+
+            if [ "$HTTP_STATUS" != "200" ]; then
+              echo "ERROR: Health check failed (HTTP $HTTP_STATUS). Rolling back..."
+              if [ -n "$PREVIOUS_COMMIT" ]; then
+                git checkout "$PREVIOUS_COMMIT"
+                $COMPOSE build --no-cache api web cms crm portal portfolio
+                $COMPOSE up -d --no-build api web cms crm portal portfolio
+                echo "Rollback complete to $PREVIOUS_COMMIT"
+              fi
+              exit 1
+            fi
+
+            echo "Deploy successful. HTTP $HTTP_STATUS."
+
+      - name: External health check
+        run: |
+          sleep 5
+          HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            --max-time 15 http://${{ secrets.DEPLOY_HOST }}:3400/health || echo "000")
+          if [ "$HTTP_STATUS" == "000" ]; then
+            echo "::error::External health check failed — API unreachable"
+            exit 1
+          fi
+          echo "External health check passed (HTTP $HTTP_STATUS)"
+
+      - name: Notify success
+        if: success()
+        run: echo "::notice::Deploy succeeded — ${{ github.sha }}"
+
+      - name: Notify failure
+        if: failure()
+        run: echo "::error::Deploy failed — ${{ github.sha }}"

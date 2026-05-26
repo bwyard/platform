@@ -17,18 +17,34 @@
       "inputs": ["production", "^production"],
       "cache": true
     },
-    "test": {
-      "inputs": ["default", "^production"],
-      "cache": true
-    },
     "typecheck": {
       "dependsOn": ["^build"],
       "cache": true
     },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^production"],
+      "cache": true
+    },
+    "test:coverage": {
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^production"],
+      "cache": true
+    },
+    "e2e": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
     "lint": {
       "inputs": ["default"],
       "cache": true
+    },
+    "lint:fix": {
+      "cache": false
+    },
+    "dev": {
+      "cache": false
     }
   },
-  "plugins": ["@nx/eslint/plugin", "@nx/vitest/plugin"]
+  "plugins": []
 }

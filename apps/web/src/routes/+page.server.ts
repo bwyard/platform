@@ -1,11 +1,9 @@
 // ============================================================
-// Home page server load — fetches blocks for the home page
+// Home page server load
 // ============================================================
 
 import type { PageServerLoad } from './$types';
-import { fetchBlocks } from '$lib/server/api';
 
-export const load: PageServerLoad = async () => {
-  const blocks = await fetchBlocks('home').catch(() => []);
-  return { blocks };
+export const load: PageServerLoad = () => {
+  return {};
 };

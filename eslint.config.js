@@ -17,7 +17,13 @@ export default tseslint.config(
         projectService: {
           allowDefaultProject: [
             '*.config.js',
+            '*.config.ts',
             'apps/web/svelte.config.js',
+            'apps/cms/svelte.config.js',
+            'apps/crm/svelte.config.js',
+            'apps/portal/svelte.config.js',
+            'apps/portfolio/svelte.config.js',
+            // apps/admin kept until directory is manually deleted
             'apps/admin/svelte.config.js',
             'packages/core/database/drizzle.config.ts',
           ],
@@ -31,6 +37,18 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+    },
+  },
+  // Root config files (vitest, playwright) use tool types not hoisted to root —
+  // type-unsafe rules produce false positives here.
+  {
+    files: ['vitest.config.ts', 'playwright.config.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
   {
