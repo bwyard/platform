@@ -79,10 +79,10 @@ services:
     container_name: breeyard-web
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3401:3401"
+      - "127.0.0.1:3411:3411"
     environment:
       NODE_ENV: production
-      PORT: 3401
+      PORT: 3411
       HOST: 0.0.0.0
       INTERNAL_API_URL: http://api:3400
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
@@ -99,10 +99,10 @@ services:
     container_name: breeyard-cms
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3402:3402"
+      - "127.0.0.1:3412:3412"
     environment:
       NODE_ENV: production
-      PORT: 3402
+      PORT: 3412
       HOST: 0.0.0.0
       INTERNAL_API_URL: http://api:3400
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
@@ -119,10 +119,10 @@ services:
     container_name: breeyard-crm
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3403:3403"
+      - "127.0.0.1:3413:3413"
     environment:
       NODE_ENV: production
-      PORT: 3403
+      PORT: 3413
       HOST: 0.0.0.0
       INTERNAL_API_URL: http://api:3400
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
@@ -139,10 +139,10 @@ services:
     container_name: breeyard-portal
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3404:3404"
+      - "127.0.0.1:3414:3414"
     environment:
       NODE_ENV: production
-      PORT: 3404
+      PORT: 3414
       HOST: 0.0.0.0
       INTERNAL_API_URL: http://api:3400
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
@@ -159,10 +159,10 @@ services:
     container_name: breeyard-portfolio
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3405:3405"
+      - "127.0.0.1:3415:3415"
     environment:
       NODE_ENV: production
-      PORT: 3405
+      PORT: 3415
       HOST: 0.0.0.0
       INTERNAL_API_URL: http://api:3400
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}

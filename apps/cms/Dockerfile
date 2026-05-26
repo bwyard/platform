@@ -11,7 +11,7 @@ WORKDIR /app
 COPY --from=builder /prod-deploy/node_modules ./node_modules
 COPY --from=builder /app/apps/cms/build ./build
 COPY --from=builder /app/apps/cms/package.json ./package.json
-ENV PORT=3402
+ENV PORT=3412
 ENV HOST=0.0.0.0
-EXPOSE 3402
+EXPOSE 3412
 CMD ["node", "build/index.js"]

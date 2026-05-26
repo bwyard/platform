@@ -34,13 +34,14 @@
 | App       | Package             | Port (local) | Port (server) | Domain              |
 | --------- | ------------------- | ------------ | ------------- | ------------------- |
 | api       | @breeyard/api       | 3010         | 3400          | api.8ofwands.com    |
-| web       | @breeyard/web       | 3011         | 3401          | 8ofwands.com        |
-| cms       | @breeyard/cms       | 3012         | 3402          | cms.8ofwands.com    |
-| crm       | @breeyard/crm       | 3013         | 3403          | crm.8ofwands.com    |
-| portal    | @breeyard/portal    | 3014         | 3404          | portal.8ofwands.com |
-| portfolio | @breeyard/portfolio | 3015         | 3405          | breeyard.com        |
+| web       | @breeyard/web       | 3011         | 3411          | 8ofwands.com        |
+| cms       | @breeyard/cms       | 3012         | 3412          | cms.8ofwands.com    |
+| crm       | @breeyard/crm       | 3013         | 3413          | crm.8ofwands.com    |
+| portal    | @breeyard/portal    | 3014         | 3414          | portal.8ofwands.com |
+| portfolio | @breeyard/portfolio | 3015         | 3415          | breeyard.com        |
 
 **Port isolation:** local 3010–3015 do not conflict with artist-platform (3001–3004, 4000).
+**Note:** 3401 is occupied by bulwark-webmail on dev-01. Bwyard frontends use 3411–3415.
 
 ---
 
