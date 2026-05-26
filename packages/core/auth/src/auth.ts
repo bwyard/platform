@@ -3,13 +3,10 @@
 // ============================================================
 
 import { betterAuth } from 'better-auth/minimal';
-import type { Auth as BetterAuthInstance } from 'better-auth/types';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { getDatabase, schema } from '@breeyard/database';
 
-export type Auth = BetterAuthInstance;
-
-export const createAuth = (): Auth =>
+export const createAuth = () =>
   betterAuth({
     basePath: '/auth',
     database: drizzleAdapter(getDatabase(), {
@@ -48,7 +45,9 @@ export const createAuth = (): Auth =>
       generateId: () => crypto.randomUUID(),
     },
     trustedOrigins: (process.env.TRUSTED_ORIGINS ?? '').split(',').filter(Boolean),
-  }) as unknown as Auth;
+  });
+
+export type Auth = ReturnType<typeof createAuth>;
 
 let authInstance: Auth | undefined;
 
