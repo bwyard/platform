@@ -15,6 +15,7 @@ const config = {
     alias: {
       $lib: './src/lib',
       '$lib/*': './src/lib/*',
+      '@breeyard/database': pkg('core/database'),
       '@breeyard/shared': pkg('core/shared'),
       '@breeyard/auth': pkg('core/auth'),
       '@breeyard/theme': pkg('core/theme'),
