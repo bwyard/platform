@@ -26,18 +26,23 @@ const randomId = () => crypto.randomUUID();
 const seedUsers = async (): Promise<{ adminId: string; clientUserId: string }> => {
   console.warn('[seed] users…');
 
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (!adminPassword) {
+    throw new Error('[seed] SEED_ADMIN_PASSWORD is required — refusing to seed with no password');
+  }
+
   const SEED_USERS = [
     {
-      email: process.env.SEED_ADMIN_EMAIL ?? 'admin@example.com',
-      name: process.env.SEED_ADMIN_NAME ?? 'Admin',
-      password: process.env.SEED_ADMIN_PASSWORD ?? 'test',
+      email: process.env.SEED_ADMIN_EMAIL ?? 'bree@8ofwands.com',
+      name: process.env.SEED_ADMIN_NAME ?? 'Bree',
+      password: adminPassword,
       role: 'admin' as const,
       fixedId: 'user-admin',
     },
     {
-      email: 'client@example.com',
+      email: process.env.SEED_CLIENT_EMAIL ?? 'client@example.com',
       name: 'Test Client',
-      password: 'test',
+      password: process.env.SEED_CLIENT_PASSWORD ?? 'changeme',
       role: 'client' as const,
       fixedId: 'user-client',
     },
@@ -46,42 +51,59 @@ const seedUsers = async (): Promise<{ adminId: string; clientUserId: string }> =
   const ids: Record<string, string> = {};
 
   for (const u of SEED_USERS) {
+    const passwordHash = await hash(u.password, 12);
+
+    // Upsert user row — update email/name/updatedAt if fixedId already exists
     const existing = await db
       .select({ id: users.id })
       .from(users)
-      .where(eq(users.email, u.email))
+      .where(eq(users.id, u.fixedId))
       .limit(1);
 
-    if (existing.length > 0 && existing[0]) {
-      console.warn(`[seed]   skip  ${u.email} — already exists`);
-      ids[u.fixedId] = existing[0].id;
-      continue;
+    if (existing.length > 0) {
+      await db
+        .update(users)
+        .set({ email: u.email, name: u.name, updatedAt: new Date() })
+        .where(eq(users.id, u.fixedId));
+      console.warn(`[seed]   updated ${u.email} (role=${u.role})`);
+    } else {
+      await db.insert(users).values({
+        id: u.fixedId,
+        email: u.email,
+        name: u.name,
+        role: u.role,
+        emailVerified: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      console.warn(`[seed]   created ${u.email} (role=${u.role})`);
     }
 
-    const passwordHash = await hash(u.password, 12);
+    // Upsert credential account — always refresh the password hash
+    const existingAccount = await db
+      .select({ id: accounts.id })
+      .from(accounts)
+      .where(eq(accounts.userId, u.fixedId))
+      .limit(1);
 
-    await db.insert(users).values({
-      id: u.fixedId,
-      email: u.email,
-      name: u.name,
-      role: u.role,
-      emailVerified: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    await db.insert(accounts).values({
-      id: randomId(),
-      userId: u.fixedId,
-      accountId: u.email,
-      providerId: 'credential',
-      password: passwordHash,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    if (existingAccount.length > 0 && existingAccount[0]) {
+      await db
+        .update(accounts)
+        .set({ accountId: u.email, password: passwordHash, updatedAt: new Date() })
+        .where(eq(accounts.id, existingAccount[0].id));
+    } else {
+      await db.insert(accounts).values({
+        id: randomId(),
+        userId: u.fixedId,
+        accountId: u.email,
+        providerId: 'credential',
+        password: passwordHash,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
 
     ids[u.fixedId] = u.fixedId;
-    console.warn(`[seed]   created ${u.email} (role=${u.role})`);
   }
 
   return {
@@ -241,8 +263,12 @@ const main = async (): Promise<void> => {
   await seedClientsAndProjects(clientUserId);
 
   console.warn('[seed] complete');
-  console.warn('  admin login:  admin@example.com / test');
-  console.warn('  client login: client@example.com / test');
+  console.warn(
+    `  admin login:  ${process.env.SEED_ADMIN_EMAIL ?? 'bree@8ofwands.com'} / (SEED_ADMIN_PASSWORD)`,
+  );
+  console.warn(
+    `  client login: ${process.env.SEED_CLIENT_EMAIL ?? 'client@example.com'} / (SEED_CLIENT_PASSWORD or 'changeme')`,
+  );
 };
 
 main().catch((err: unknown) => {

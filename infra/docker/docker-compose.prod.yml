@@ -86,8 +86,15 @@ services:
       HOST: 0.0.0.0
       INTERNAL_API_URL: http://api:3400
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
+      PUBLIC_PORTAL_URL: ${PUBLIC_PORTAL_URL}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
     depends_on:
-      - api
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
     networks:
       - internal
 
@@ -106,8 +113,14 @@ services:
       HOST: 0.0.0.0
       INTERNAL_API_URL: http://api:3400
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
     depends_on:
-      - api
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
     networks:
       - internal
 
@@ -126,8 +139,14 @@ services:
       HOST: 0.0.0.0
       INTERNAL_API_URL: http://api:3400
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
     depends_on:
-      - api
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
     networks:
       - internal
 
@@ -146,8 +165,14 @@ services:
       HOST: 0.0.0.0
       INTERNAL_API_URL: http://api:3400
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
     depends_on:
-      - api
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
     networks:
       - internal
 
