@@ -4,7 +4,7 @@ WORKDIR /app
 ENV CI=true
 COPY . .
 RUN pnpm install --frozen-lockfile
-RUN NX_DAEMON=false pnpm exec nx run @breeyard/web:build
+RUN pnpm --filter @breeyard/web run build
 RUN pnpm deploy --legacy --filter @breeyard/web --prod /prod-deploy
 
 FROM node:22-alpine

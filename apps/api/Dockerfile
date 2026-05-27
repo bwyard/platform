@@ -16,4 +16,4 @@ COPY --from=builder /app/apps/api/package.json ./package.json
 ENV PORT=3400
 ENV HOST=0.0.0.0
 EXPOSE 3400
-CMD ["node", "dist/apps/api/src/main.js"]
+CMD ["node", "dist/main.js"]

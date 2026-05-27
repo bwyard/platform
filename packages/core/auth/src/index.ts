@@ -3,4 +3,4 @@
 // ============================================================
 
 export { getAuth, createAuth } from './auth.js';
-export type { Auth } from './auth.js';
+export type { Auth } from 'better-auth';
