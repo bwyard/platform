@@ -1,7 +1,8 @@
 <script lang="ts">
-  import type { PageData } from './$types';
+  import { enhance } from '$app/forms';
+  import type { PageData, ActionData } from './$types';
 
-  const { data }: { data: PageData } = $props();
+  const { data, form }: { data: PageData; form: ActionData } = $props();
 
   const statusColors: Record<string, string> = {
     prospect: 'bg-yellow-100 text-yellow-800',
@@ -117,6 +118,36 @@
           <p class="text-xs font-medium tracking-wide text-gray-400 uppercase">Client since</p>
           <p class="text-gray-800">{new Date(data.client.createdAt).toLocaleDateString()}</p>
         </div>
+      </div>
+
+      <!-- Portal access -->
+      <div class="space-y-3 rounded-lg border p-4 text-sm">
+        <p class="text-xs font-medium tracking-wide text-gray-400 uppercase">Portal access</p>
+
+        {#if data.client.userId}
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-green-500"></span>
+            <span class="text-gray-700">Account active</span>
+          </div>
+        {:else if form?.invited}
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-blue-500"></span>
+            <span class="text-gray-700">Invite sent</span>
+          </div>
+        {:else}
+          <p class="text-gray-500">No portal account yet.</p>
+          <form method="POST" action="?/invite" use:enhance>
+            {#if form?.error}
+              <p class="mb-2 text-xs text-red-600">{form.error}</p>
+            {/if}
+            <button
+              type="submit"
+              class="w-full rounded border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-black hover:text-black"
+            >
+              Send invite
+            </button>
+          </form>
+        {/if}
       </div>
     </div>
   </div>

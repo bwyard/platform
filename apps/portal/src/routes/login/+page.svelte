@@ -56,6 +56,9 @@
       >
         {loading ? 'Signing in…' : 'Sign in'}
       </button>
+      <a href="/forgot-password" class="text-center text-xs text-gray-400 hover:text-gray-600">
+        Forgot password?
+      </a>
     </form>
   </div>
 </div>

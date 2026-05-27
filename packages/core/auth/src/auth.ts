@@ -6,6 +6,7 @@ import { betterAuth } from 'better-auth/minimal';
 import type { Auth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { getDatabase, schema } from '@breeyard/database';
+import { getMailClient } from '@breeyard/mail';
 
 export const createAuth = (): Auth =>
   // better-auth's inferred generic type references internal modules that tsc
@@ -25,6 +26,10 @@ export const createAuth = (): Auth =>
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: false,
+      sendResetPassword: async ({ user, url }: { user: { email: string }; url: string }) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        await getMailClient().sendPasswordReset(user.email, { resetUrl: url });
+      },
     },
     user: {
       additionalFields: {

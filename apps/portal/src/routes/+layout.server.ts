@@ -1,13 +1,13 @@
 // ============================================================
 // Portal root layout — auth guard (client role only)
-// Public routes: /login, /register, /forgot-password.
+// Public routes: /login, /register, /forgot-password, /reset-password.
 // ============================================================
 
 import { redirect, error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { getSession } from '$lib/server/session';
 
-const PUBLIC_PATHS = ['/login', '/register', '/forgot-password'];
+const PUBLIC_PATHS = ['/login', '/register', '/forgot-password', '/reset-password'];
 
 export const load: LayoutServerLoad = async (event) => {
   const isPublic = PUBLIC_PATHS.some((path) => event.url.pathname.startsWith(path));
