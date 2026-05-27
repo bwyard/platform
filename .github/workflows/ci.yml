@@ -29,11 +29,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build packages (required for type resolution)
+        run: pnpm --filter './packages/**' run build
+
       - name: Typecheck
-        run: pnpm nx run-many -t typecheck
+        run: pnpm -r --if-present run typecheck
 
       - name: Lint
-        run: pnpm nx run-many -t lint
+        run: pnpm -r --if-present run lint
 
   build:
     name: Build
@@ -54,5 +57,34 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build all
-        run: pnpm nx run-many -t build
+      - name: Build packages
+        run: pnpm --filter './packages/**' run build
+
+      - name: Build apps
+        run: pnpm --filter './apps/**' run build
+
+  docker-build:
+    name: Docker Build (${{ matrix.app }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: check
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [api, web, cms, crm, portal, portfolio]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build ${{ matrix.app }} image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: false
+          tags: bwyard/${{ matrix.app }}:ci
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app }}
