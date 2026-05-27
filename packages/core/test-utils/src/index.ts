@@ -156,6 +156,7 @@ export interface FakeClient {
   readonly email: string;
   readonly company: string | null;
   readonly status: string;
+  readonly userId: string | null;
   readonly createdAt: Date;
 }
 
@@ -165,6 +166,7 @@ export const createFakeClient = (overrides: Partial<FakeClient> = {}): FakeClien
   email: faker.internet.email(),
   company: faker.company.name(),
   status: 'active',
+  userId: null,
   createdAt: faker.date.past(),
   ...overrides,
 });

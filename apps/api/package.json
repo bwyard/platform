@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@breeyard/auth": "workspace:*",
+    "@breeyard/mail": "workspace:*",
     "better-auth": "^1.2.8",
     "@breeyard/config": "workspace:*",
     "@breeyard/database": "workspace:*",
@@ -29,6 +30,7 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@breeyard/test-utils": "workspace:*",
     "@types/node": "^22.0.0",
     "tsx": "^4.19.4",
     "typescript": "^5.8.0",

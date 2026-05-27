@@ -51,6 +51,19 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
+  // Test files — workspace deps (test-utils, etc.) may not have dist built locally,
+  // causing unsafe-* false positives. Relax type-safety rules for test files only.
+  {
+    files: ['**/*.test.ts', '**/*.spec.ts', 'e2e/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+    },
+  },
   {
     ignores: [
       '**/node_modules/**',
