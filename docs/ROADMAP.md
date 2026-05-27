@@ -57,6 +57,16 @@ The core client relationship loop: Bree onboards a client → client accesses po
 - Portal: landing state when no client record found (graceful "account pending" message)
 - Env vars needed: `PORTAL_URL` (server-side, for the invite link in the email)
 
+**Send-from address:** `onboarding@8ofwands.com`
+Set `MAIL_FROM="8 of Wands <onboarding@8ofwands.com>"` in the API container env.
+
+**Devops must provision before P1-A can go live:**
+
+- Stalwart: create `onboarding@8ofwands.com` mailbox (or alias → admin inbox)
+- Stalwart: generate SMTP credentials for this address
+- DNS (8ofwands.com): MX record pointing to dev-01, SPF, DKIM, DMARC
+- API env: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_SECURE`, `MAIL_FROM`, `PORTAL_URL`
+
 **Dependencies:** `@breeyard/mail` ✅ already implemented
 
 ---
@@ -82,11 +92,13 @@ The core client relationship loop: Bree onboards a client → client accesses po
 
 **What to build:**
 
-- When client sends a message via portal → email Bree (Bree's admin email from env)
-- When Bree replies via CRM → email the client (`sendProjectUpdate` or a new `sendMessage` template)
+- When client sends a message via portal → email Bree at `ADMIN_EMAIL` env var
+- When Bree replies via CRM → email the client (new `sendMessage` template, from `onboarding@8ofwands.com`)
 - Both via `@breeyard/mail.send` directly — no queue needed at this scale
 
-**Dependencies:** P1-B (CRM reply route), `@breeyard/mail` ✅
+**Send-from address:** `onboarding@8ofwands.com` (same as invite — same Stalwart mailbox/alias)
+
+**Dependencies:** P1-B (CRM reply route), `@breeyard/mail` ✅, Stalwart `onboarding@8ofwands.com` provisioned
 
 ---
 
@@ -138,6 +150,33 @@ Once the client loop is closed and billing basics exist.
 - Audit log on key actions (invite sent, message sent, invoice created) via `@breeyard/audit`
 - E2E tests for: invite flow, portal login, message send/receive, invoice view
 - CRM auth guard — verify admin-only access is enforced end-to-end
+
+---
+
+## Email Infrastructure (devops prerequisite for P1-A/P1-C)
+
+**Mail server:** Stalwart (already running on dev-01)
+**Send-from:** `onboarding@8ofwands.com`
+
+### Devops checklist
+
+- [ ] Create `onboarding@8ofwands.com` in Stalwart (mailbox or alias forwarding to Bree's admin inbox)
+- [ ] Generate SMTP credentials for `onboarding@8ofwands.com`
+- [ ] DNS — 8ofwands.com:
+  - [ ] MX record → dev-01 (or Stalwart hostname)
+  - [ ] SPF — `v=spf1 include:<dev-01-ip> -all`
+  - [ ] DKIM — generate key pair in Stalwart, publish public key as TXT record
+  - [ ] DMARC — `v=DMARC1; p=quarantine; rua=mailto:postmaster@8ofwands.com`
+- [ ] Set API container env vars:
+  - `SMTP_HOST` — Stalwart hostname
+  - `SMTP_PORT` — 587 (STARTTLS)
+  - `SMTP_SECURE` — false (STARTTLS, not SSL)
+  - `SMTP_USER` — `onboarding@8ofwands.com`
+  - `SMTP_PASS` — generated above
+  - `MAIL_FROM` — `8 of Wands <onboarding@8ofwands.com>`
+  - `PORTAL_URL` — `https://portal.8ofwands.com` (used in invite email link)
+  - `ADMIN_EMAIL` — Bree's email (receives new-message notifications)
+- [ ] Smoke test: send a test email via Stalwart admin or mailpit before P1-A goes live
 
 ---
 
