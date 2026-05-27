@@ -4,8 +4,8 @@ WORKDIR /app
 ENV CI=true
 COPY . .
 RUN pnpm install --frozen-lockfile
-RUN NX_DAEMON=false pnpm exec nx run-many -t build --projects=@breeyard/database,@breeyard/auth,@breeyard/shared,@breeyard/config,@breeyard/logging,@breeyard/errors,@breeyard/validation
-RUN NX_DAEMON=false pnpm exec nx run @breeyard/api:build
+RUN pnpm --filter './packages/**' build
+RUN pnpm --filter @breeyard/api build
 RUN pnpm deploy --legacy --filter @breeyard/api --prod /prod-deploy
 
 FROM node:22-alpine

@@ -4,9 +4,7 @@
 
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { PageServerLoadEvent } from './$types';
 import { apiFetch } from '$lib/server/api';
-import { getSession } from '$lib/server/session';
 
 interface Message {
   id: string;
@@ -17,26 +15,19 @@ interface Message {
   createdAt: string;
 }
 
-export const load: PageServerLoad = async ({ parent }: PageServerLoadEvent) => {
+export const load: PageServerLoad = async ({ parent, request }) => {
   const { user } = await parent();
-
   if (!user) return { messages: [] };
 
-  const messages = await apiFetch<Message[]>(`/v1/portal/messages?userId=${user.id}`).catch(
-    () => [],
-  );
+  const cookie = request.headers.get('cookie') ?? '';
+  const messages = await apiFetch<Message[]>('/v1/portal/messages', { cookie }).catch(() => []);
 
   return { messages };
 };
 
 export const actions: Actions = {
-  send: async (event) => {
-    const session = await getSession(event);
-
-    if (!session) return fail(401, { error: 'Not authenticated.' });
-
-    const { user } = session;
-    const { request } = event;
+  send: async ({ request }) => {
+    const cookie = request.headers.get('cookie') ?? '';
 
     const form = await request.formData();
     const body = (form.get('body') as string | null)?.trim() ?? '';
@@ -46,9 +37,9 @@ export const actions: Actions = {
     try {
       await apiFetch('/v1/portal/messages', {
         method: 'POST',
-        body: JSON.stringify({ userId: user.id, body }),
+        body: JSON.stringify({ body }),
+        cookie,
       });
-
       return { success: true };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to send message.';

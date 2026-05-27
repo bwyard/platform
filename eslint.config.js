@@ -60,6 +60,7 @@ export default tseslint.config(
       '**/.turbo/**',
       '**/.nx/**',
       '**/coverage/**',
+      'scripts/**',
     ],
   },
 );

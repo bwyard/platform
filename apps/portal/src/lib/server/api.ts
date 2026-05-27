@@ -9,14 +9,18 @@ const API_URL = process.env.PRIVATE_API_URL ?? 'http://localhost:3010';
 
 export const apiFetch = async <T>(
   path: string,
-  options: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> } = {},
+  options: Omit<RequestInit, 'headers'> & {
+    headers?: Record<string, string>;
+    cookie?: string;
+  } = {},
 ): Promise<T> => {
-  const { headers = {}, ...rest } = options;
+  const { headers = {}, cookie, ...rest } = options;
 
   const response = await fetch(`${API_URL}${path}`, {
     ...rest,
     headers: {
       'Content-Type': 'application/json',
+      ...(cookie ? { Cookie: cookie } : {}),
       ...headers,
     },
   });

@@ -3,10 +3,14 @@
 // ============================================================
 
 import { betterAuth } from 'better-auth/minimal';
+import type { Auth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { getDatabase, schema } from '@breeyard/database';
 
-export const createAuth = () =>
+export const createAuth = (): Auth =>
+  // better-auth's inferred generic type references internal modules that tsc
+  // cannot name in .d.ts files. Cast through unknown to the public Auth type.
+
   betterAuth({
     basePath: '/auth',
     database: drizzleAdapter(getDatabase(), {
@@ -45,9 +49,7 @@ export const createAuth = () =>
       generateId: () => crypto.randomUUID(),
     },
     trustedOrigins: (process.env.TRUSTED_ORIGINS ?? '').split(',').filter(Boolean),
-  });
-
-export type Auth = ReturnType<typeof createAuth>;
+  }) as unknown as Auth;
 
 let authInstance: Auth | undefined;
 
