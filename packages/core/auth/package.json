@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "better-auth": "^1.2.8",
-    "@breeyard/database": "workspace:*"
+    "@breeyard/database": "workspace:*",
+    "@breeyard/mail": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.8.0"

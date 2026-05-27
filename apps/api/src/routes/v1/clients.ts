@@ -1,16 +1,19 @@
 // ============================================================
 // Clients routes — /v1/clients
-// GET  /v1/clients          — list all clients
-// POST /v1/clients          — create a client
-// GET  /v1/clients/:id      — get one client + projects
-// POST /v1/clients/:id/projects — create a project for a client
+// GET  /v1/clients               — list all clients
+// POST /v1/clients               — create a client
+// GET  /v1/clients/:id           — get one client + projects
+// POST /v1/clients/:id/invite    — create portal account + send welcome email
+// POST /v1/clients/:id/projects  — create a project for a client
 // ============================================================
 
 import type { FastifyInstance } from 'fastify';
-import { getDatabase, clients, projects } from '@breeyard/database';
+import { getDatabase, clients, projects, users } from '@breeyard/database';
 import { eq, desc } from 'drizzle-orm';
 import { apiSuccess, apiError } from '@breeyard/shared';
 import type { CreateClientInput, CreateProjectInput } from '@breeyard/shared';
+import { getAuth } from '@breeyard/auth';
+import { getMailClient } from '@breeyard/mail';
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export const clientsRoutes = async (fastify: FastifyInstance): Promise<void> => {
@@ -70,6 +73,62 @@ export const clientsRoutes = async (fastify: FastifyInstance): Promise<void> => 
       .orderBy(desc(projects.createdAt));
 
     return reply.send(apiSuccess({ ...client, projects: clientProjects }));
+  });
+
+  // ---- POST /v1/clients/:id/invite ----
+  fastify.post<{ Params: { id: string } }>('/:id/invite', async (request, reply) => {
+    const db = getDatabase();
+
+    const [client] = await db
+      .select()
+      .from(clients)
+      .where(eq(clients.id, request.params.id))
+      .limit(1);
+
+    if (!client) {
+      return reply.status(404).send(apiError('NOT_FOUND', 'Client not found.'));
+    }
+
+    if (client.userId) {
+      return reply.status(409).send(apiError('CONFLICT', 'Client already has a portal account.'));
+    }
+
+    // Use existing user if email already registered, otherwise create a new one.
+    const [existingUser] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, client.email))
+      .limit(1);
+
+    let userId: string;
+
+    if (existingUser) {
+      userId = existingUser.id;
+    } else {
+      // Create user via better-auth. Temp password — client sets their own via forgot password.
+      const result = (await getAuth().api.signUpEmail({
+        body: { name: client.name, email: client.email, password: crypto.randomUUID() },
+      })) as { user: { id: string } } | null;
+
+      if (!result?.user) {
+        return reply
+          .status(500)
+          .send(apiError('INTERNAL_ERROR', 'Failed to create portal account.'));
+      }
+
+      userId = result.user.id;
+    }
+
+    await db
+      .update(clients)
+      .set({ userId, updatedAt: new Date() })
+      .where(eq(clients.id, client.id));
+
+    const portalUrl = process.env.PORTAL_URL ?? 'http://localhost:3014';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    await getMailClient().sendWelcome(client.email, { name: client.name, loginUrl: portalUrl });
+
+    return reply.send(apiSuccess({ invited: true }));
   });
 
   // ---- POST /v1/clients/:id/projects ----
