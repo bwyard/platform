@@ -16,6 +16,7 @@ const config = {
       $lib: './src/lib',
       '$lib/*': './src/lib/*',
       '@breeyard/database': pkg('core/database'),
+      '@breeyard/mail': pkg('core/mail'),
       '@breeyard/shared': pkg('core/shared'),
       '@breeyard/auth': pkg('core/auth'),
       '@breeyard/seo': pkg('core/seo'),
