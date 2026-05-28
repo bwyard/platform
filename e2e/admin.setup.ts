@@ -11,6 +11,7 @@ setup('authenticate as admin', async ({ page }) => {
   await page.getByLabel('Email').fill(process.env.E2E_ADMIN_EMAIL ?? 'bree@8ofwands.com');
   await page.getByLabel('Password').fill(process.env.E2E_ADMIN_PASSWORD ?? '');
   await page.getByRole('button', { name: /sign in/i }).click();
-  await page.waitForURL('**/dashboard');
+  await page.waitForURL(/\/(clients|dashboard)/);
+
   await page.context().storageState({ path: authFile });
 });
