@@ -26,8 +26,8 @@ test.describe('crm — client management', () => {
     const page = await ctx.newPage();
 
     await page.goto(`${CRM_URL}/login`);
-    // Allow extra time for first Vite compile of this route in CI
-    await expect(page.getByLabel('Email')).toBeVisible({ timeout: 20_000 });
+    // Wait for Vite to finish serving the JS bundle so Svelte hydrates before we interact
+    await page.waitForLoadState('networkidle');
     await page.getByLabel('Email').fill(process.env.E2E_ADMIN_EMAIL ?? 'bree@8ofwands.com');
     await page.getByLabel('Password').fill(process.env.E2E_ADMIN_PASSWORD ?? '');
     await page.getByRole('button', { name: /sign in/i }).click();
