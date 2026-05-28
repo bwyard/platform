@@ -156,11 +156,24 @@ jobs:
 
             # Start infra first
             $COMPOSE up -d --no-build postgres redis
-            sleep 5
 
-            # Run migrations
+            # Wait for postgres to accept connections before migrating
             NETWORK="breeyard_internal"
             POSTGRES_PASSWORD=$(grep -E '^POSTGRES_PASSWORD=' "$ENV_FILE" | cut -d= -f2-)
+            echo "Waiting for postgres..."
+            for i in $(seq 1 30); do
+              if sudo docker exec breeyard-postgres pg_isready -U breeyard -q 2>/dev/null; then
+                echo "Postgres ready"
+                break
+              fi
+              if [ "$i" -eq 30 ]; then
+                echo "::error::Postgres did not become ready — aborting deploy"
+                exit 1
+              fi
+              sleep 2
+            done
+
+            # Run migrations — failure aborts the deploy
             sudo docker run --rm \
               --network "$NETWORK" \
               --env-file "$ENV_FILE" \
@@ -172,8 +185,7 @@ jobs:
               sh -c "corepack enable \
                 && corepack prepare pnpm@10.32.1 --activate \
                 && pnpm install --frozen-lockfile \
-                && pnpm --filter @breeyard/database db:migrate" \
-              || echo "::warning::Migration failed — check DB manually"
+                && pnpm --filter @breeyard/database db:migrate"
 
             # Seed — idempotent, safe on every deploy, updates credentials if env vars changed
             SEED_ADMIN_EMAIL=$(grep -E '^SEED_ADMIN_EMAIL=' "$ENV_FILE" | cut -d= -f2- || true)
