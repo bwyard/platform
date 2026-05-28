@@ -5,7 +5,11 @@
 
 import type { NavItem, Block, ApiSuccess } from '@breeyard/shared';
 
-const apiBase = (): string => process.env.INTERNAL_API_URL ?? 'http://localhost:3400';
+const apiBase = (): string => {
+  const url = process.env.INTERNAL_API_URL;
+  if (!url) throw new Error('INTERNAL_API_URL is not set');
+  return url;
+};
 
 const get = async <T>(path: string): Promise<T> => {
   const res = await fetch(`${apiBase()}${path}`);

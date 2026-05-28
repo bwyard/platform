@@ -5,7 +5,7 @@
 
 import type { ApiResponse } from '@breeyard/shared';
 
-const API_URL = process.env.PRIVATE_API_URL ?? 'http://localhost:3400';
+const API_URL = process.env.INTERNAL_API_URL;
 
 export const apiFetch = async <T>(
   path: string,
@@ -13,6 +13,7 @@ export const apiFetch = async <T>(
 ): Promise<T> => {
   const { headers = {}, ...rest } = options;
 
+  if (!API_URL) throw new Error('INTERNAL_API_URL is not set');
   const response = await fetch(`${API_URL}${path}`, {
     ...rest,
     headers: {
