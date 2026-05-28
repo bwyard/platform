@@ -96,6 +96,10 @@ jobs:
 
             echo "Deploy successful. HTTP $HTTP_STATUS."
 
+            # Prune build cache and dangling images after every deploy to prevent disk fill
+            sudo docker builder prune --all -f || true
+            sudo docker image prune -f || true
+
       - name: External health check
         run: |
           sleep 5
