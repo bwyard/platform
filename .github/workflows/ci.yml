@@ -32,7 +32,13 @@ jobs:
         run: pnpm --filter './packages/**' run build
 
       - name: Typecheck
+        env:
+          PUBLIC_API_URL: https://api.8ofwands.com
+          PUBLIC_PORTAL_URL: https://portal.8ofwands.com
         run: pnpm -r --if-present run typecheck
 
       - name: Lint
+        env:
+          PUBLIC_API_URL: https://api.8ofwands.com
+          PUBLIC_PORTAL_URL: https://portal.8ofwands.com
         run: pnpm -r --if-present run lint
