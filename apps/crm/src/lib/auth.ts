@@ -3,11 +3,12 @@
 // Points to the Fastify API, not the crm app itself.
 // ============================================================
 
+import { PUBLIC_API_URL } from '$env/static/public';
 import { createAuthClient } from 'better-auth/svelte';
 
 const apiBase: string =
   typeof window !== 'undefined'
-    ? ((import.meta.env.PUBLIC_API_URL as string | undefined) ?? 'http://localhost:3400')
+    ? PUBLIC_API_URL || 'http://localhost:3400'
     : 'http://localhost:3400';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
