@@ -91,6 +91,26 @@ RUN pnpm --filter @breeyard/api build
 
 ---
 
+## Mail — `@breeyard/mail` env vars
+
+`getMailClient()` reads these from env at runtime:
+
+| Var                 | Production value              | Notes                                 |
+| ------------------- | ----------------------------- | ------------------------------------- |
+| `SMTP_HOST`         | `smtp.resend.com`             | Resend SMTP relay                     |
+| `SMTP_PORT`         | `587`                         | STARTTLS                              |
+| `SMTP_SECURE`       | `false`                       |                                       |
+| `SMTP_USER`         | `resend`                      | literal string                        |
+| `SMTP_PASS`         | Resend API key                | `re_...` from infra `.env` on mail-01 |
+| `MAIL_FROM`         | `onboarding@8ofwands.com`     | must be a verified Resend sender      |
+| `PUBLIC_PORTAL_URL` | `https://portal.8ofwands.com` | used in email links                   |
+
+**Why Resend:** Hetzner blocks port 25 on new servers. Resend is pre-wired — `resend._domainkey.8ofwands.com` DKIM record is live in Cloudflare. Tested 2026-05-27.
+
+**Stalwart (mail-01, 62.238.15.230):** handles inbound only. All `@8ofwands.com` addresses (bree, admin, billing, hello, support, onboarding) route to bree's mailbox. Admin UI: `https://mail.8ofwands.com`.
+
+---
+
 ## Lockfile rule
 
 **Never push a `package.json` change without committing the updated `pnpm-lock.yaml`.**
