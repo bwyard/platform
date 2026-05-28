@@ -14,6 +14,10 @@
   const portalUrl = env.PUBLIC_PORTAL_URL ?? '/portal';
 </script>
 
+<svelte:head>
+  <title>8 of Wands</title>
+</svelte:head>
+
 <header class="border-b border-gray-200 bg-white">
   <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
     <a href="/" class="text-lg font-semibold tracking-tight text-gray-900">8 of Wands</a>

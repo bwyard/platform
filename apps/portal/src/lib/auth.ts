@@ -12,6 +12,7 @@ const apiBase: string =
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const authClient: ReturnType<typeof createAuthClient<any>> = createAuthClient({
   baseURL: apiBase,
+  basePath: '/auth',
 });
 
 export const { signIn, signOut, useSession } = authClient;

@@ -42,3 +42,105 @@ jobs:
           PUBLIC_API_URL: https://api.8ofwands.com
           PUBLIC_PORTAL_URL: https://portal.8ofwands.com
         run: pnpm -r --if-present run lint
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: breeyard
+          POSTGRES_PASSWORD: breeyard
+          POSTGRES_DB: breeyard
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://breeyard:breeyard@localhost:5432/breeyard
+      BETTER_AUTH_SECRET: e2e-test-secret-minimum-32-chars-placeholder
+      BETTER_AUTH_URL: http://localhost:3010
+      BETTER_AUTH_TRUSTED_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
+      PUBLIC_API_URL: http://localhost:3010
+      PUBLIC_PORTAL_URL: http://localhost:3014
+      INTERNAL_API_URL: http://localhost:3010
+      REDIS_URL: redis://localhost:6379
+      CORS_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
+      TRUSTED_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
+      E2E_ADMIN_EMAIL: bree@8ofwands.com
+      E2E_ADMIN_PASSWORD: orbittigerstone530
+      SEED_ADMIN_EMAIL: bree@8ofwands.com
+      SEED_ADMIN_PASSWORD: orbittigerstone530
+      SEED_CLIENT_EMAIL: client@example.com
+      SEED_CLIENT_PASSWORD: blazecedarstone952
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm --filter './packages/**' run build
+
+      - name: Write .env for dev scripts
+        run: |
+          cat > .env << 'EOF'
+          DATABASE_URL=postgresql://breeyard:breeyard@localhost:5432/breeyard
+          BETTER_AUTH_SECRET=e2e-test-secret-minimum-32-chars-placeholder
+          BETTER_AUTH_URL=http://localhost:3010
+          BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
+          PUBLIC_API_URL=http://localhost:3010
+          PUBLIC_PORTAL_URL=http://localhost:3014
+          INTERNAL_API_URL=http://localhost:3010
+          REDIS_URL=redis://localhost:6379
+          CORS_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
+          TRUSTED_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
+          SEED_ADMIN_EMAIL=bree@8ofwands.com
+          SEED_ADMIN_PASSWORD=orbittigerstone530
+          SEED_CLIENT_EMAIL=client@example.com
+          SEED_CLIENT_PASSWORD=blazecedarstone952
+          EOF
+
+      - name: Run migrations
+        run: pnpm --filter @breeyard/database db:migrate
+
+      - name: Seed test data
+        run: node packages/core/database/dist/seed.js
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium webkit
+
+      - name: Run E2E tests
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
