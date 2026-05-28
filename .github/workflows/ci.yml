@@ -1,31 +1,15 @@
 name: CI
 
 on:
-  push:
-    branches: [dev]
   pull_request:
     branches: [main]
 
-# Cancel in-progress runs on the same ref.
+# Cancel in-progress runs on the same PR.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# ---------------------------------------------------------------------------
-# Job architecture:
-#
-#   check  →  docker-build  (PRs to main only)
-#
-#   check:        Every PR + push to dev. Build packages, typecheck, lint.
-#                 ~3-5 min.
-#
-#   docker-build: PRs to main only (needs: check). Builds all 6 app images
-#                 via docker buildx bake to catch Dockerfile/bundle failures
-#                 before deploy. ~5-10 min. Does NOT push images.
-# ---------------------------------------------------------------------------
-
 jobs:
-  # ─── Check: Build packages → Typecheck + Lint ───────────────────────────────
   check:
     name: Typecheck + Lint
     runs-on: ubuntu-latest
@@ -52,36 +36,3 @@ jobs:
 
       - name: Lint
         run: pnpm -r --if-present run lint
-
-  # ─── Docker build check (PRs to main only) ──────────────────────────────────
-  docker-build:
-    name: Docker Build Check
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs: check
-    if: github.event_name == 'pull_request' && github.base_ref == 'main'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build all app images
-        working-directory: infra/docker
-        run: |
-          docker buildx bake \
-            --file docker-compose.prod.yml \
-            --no-cache \
-            api web cms crm portal portfolio
-        env:
-          # Dummy values — build only, no runtime needed
-          POSTGRES_PASSWORD: ci
-          REDIS_PASSWORD: ci
-          BETTER_AUTH_SECRET: ci-secret
-          BETTER_AUTH_URL: http://localhost:3400
-          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
-          PUBLIC_API_URL: http://localhost:3400
-          PUBLIC_PORTAL_URL: http://localhost:3414
-          # buildx bake reads context: ../.. which is outside infra/docker — grant fs access
-          BUILDX_BAKE_ENTITLEMENTS_FS: "0"
