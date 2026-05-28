@@ -73,11 +73,11 @@ jobs:
               || echo "::warning::Migration failed — check DB manually"
 
             # Seed — idempotent, safe on every deploy, updates credentials if env vars changed
-            SEED_ADMIN_EMAIL=$(grep -E '^SEED_ADMIN_EMAIL=' "$ENV_FILE" | cut -d= -f2-)
-            SEED_ADMIN_NAME=$(grep -E '^SEED_ADMIN_NAME=' "$ENV_FILE" | cut -d= -f2-)
-            SEED_ADMIN_PASSWORD=$(grep -E '^SEED_ADMIN_PASSWORD=' "$ENV_FILE" | cut -d= -f2-)
-            SEED_CLIENT_EMAIL=$(grep -E '^SEED_CLIENT_EMAIL=' "$ENV_FILE" | cut -d= -f2-)
-            SEED_CLIENT_PASSWORD=$(grep -E '^SEED_CLIENT_PASSWORD=' "$ENV_FILE" | cut -d= -f2-)
+            SEED_ADMIN_EMAIL=$(grep -E '^SEED_ADMIN_EMAIL=' "$ENV_FILE" | cut -d= -f2- || true)
+            SEED_ADMIN_NAME=$(grep -E '^SEED_ADMIN_NAME=' "$ENV_FILE" | cut -d= -f2- || true)
+            SEED_ADMIN_PASSWORD=$(grep -E '^SEED_ADMIN_PASSWORD=' "$ENV_FILE" | cut -d= -f2- || true)
+            SEED_CLIENT_EMAIL=$(grep -E '^SEED_CLIENT_EMAIL=' "$ENV_FILE" | cut -d= -f2- || true)
+            SEED_CLIENT_PASSWORD=$(grep -E '^SEED_CLIENT_PASSWORD=' "$ENV_FILE" | cut -d= -f2- || true)
             if [ -n "$SEED_ADMIN_PASSWORD" ]; then
               sudo docker run --rm \
                 --network "$NETWORK" \
