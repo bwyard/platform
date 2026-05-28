@@ -13,7 +13,10 @@ WORKDIR /app
 COPY --from=builder /prod-deploy/node_modules ./node_modules
 COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/package.json ./package.json
+COPY --from=builder /app/packages/core/database/migrations ./migrations
+COPY --from=builder /app/apps/api/entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 ENV PORT=3400
 ENV HOST=0.0.0.0
 EXPOSE 3400
-CMD ["node", "dist/main.js"]
+CMD ["./entrypoint.sh"]
