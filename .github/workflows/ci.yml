@@ -125,7 +125,7 @@ jobs:
         run: pnpm --filter @breeyard/database db:migrate
 
       - name: Seed test data
-        run: pnpm --filter @breeyard/database db:seed
+        run: node packages/core/database/dist/seed.js
 
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
