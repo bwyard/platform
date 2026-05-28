@@ -83,3 +83,5 @@ jobs:
           DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
           PUBLIC_API_URL: http://localhost:3400
           PUBLIC_PORTAL_URL: http://localhost:3414
+          # buildx bake reads context: ../.. which is outside infra/docker — grant fs access
+          BUILDX_BAKE_ENTITLEMENTS_FS: "0"
