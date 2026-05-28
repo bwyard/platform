@@ -1,11 +1,11 @@
 // ============================================================
 // @breeyard/web — server-side API client
-// Env: INTERNAL_API_URL (falls back to localhost:3010 in dev)
+// Env: INTERNAL_API_URL (falls back to localhost:3400 in dev)
 // ============================================================
 
 import type { NavItem, Block, ApiSuccess } from '@breeyard/shared';
 
-const apiBase = (): string => process.env.INTERNAL_API_URL ?? 'http://localhost:3010';
+const apiBase = (): string => process.env.INTERNAL_API_URL ?? 'http://localhost:3400';
 
 const get = async <T>(path: string): Promise<T> => {
   const res = await fetch(`${apiBase()}${path}`);

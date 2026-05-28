@@ -2,6 +2,8 @@ FROM node:22-alpine AS builder
 RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 WORKDIR /app
 ENV CI=true
+ARG PUBLIC_API_URL=http://localhost:3400
+ENV PUBLIC_API_URL=${PUBLIC_API_URL}
 COPY . .
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @breeyard/cms run build

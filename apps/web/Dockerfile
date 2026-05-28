@@ -2,6 +2,10 @@ FROM node:22-alpine AS builder
 RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 WORKDIR /app
 ENV CI=true
+ARG PUBLIC_API_URL=http://localhost:3400
+ARG PUBLIC_PORTAL_URL=http://localhost:3414
+ENV PUBLIC_API_URL=${PUBLIC_API_URL}
+ENV PUBLIC_PORTAL_URL=${PUBLIC_PORTAL_URL}
 COPY . .
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @breeyard/web run build

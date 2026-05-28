@@ -5,7 +5,7 @@
 
 import type { ApiResponse } from '@breeyard/shared';
 
-const API_URL = process.env.PRIVATE_API_URL ?? 'http://localhost:3010';
+const API_URL = process.env.PRIVATE_API_URL ?? 'http://localhost:3400';
 
 export const apiFetch = async <T>(
   path: string,
