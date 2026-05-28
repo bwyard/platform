@@ -271,9 +271,9 @@ const main = async (): Promise<void> => {
   );
 };
 
-main().catch((err: unknown) => {
-  console.error('[seed] fatal error', err);
-  process.exit(1);
-});
-
-process.exit(0);
+main()
+  .then(() => process.exit(0))
+  .catch((err: unknown) => {
+    console.error('[seed] fatal error', err);
+    process.exit(1);
+  });

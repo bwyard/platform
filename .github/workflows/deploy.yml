@@ -72,6 +72,29 @@ jobs:
                 && pnpm --filter @breeyard/database db:migrate" \
               || echo "::warning::Migration failed — check DB manually"
 
+            # Seed — idempotent, safe on every deploy, updates credentials if env vars changed
+            SEED_ADMIN_EMAIL=$(grep -E '^SEED_ADMIN_EMAIL=' "$ENV_FILE" | cut -d= -f2-)
+            SEED_ADMIN_NAME=$(grep -E '^SEED_ADMIN_NAME=' "$ENV_FILE" | cut -d= -f2-)
+            SEED_ADMIN_PASSWORD=$(grep -E '^SEED_ADMIN_PASSWORD=' "$ENV_FILE" | cut -d= -f2-)
+            SEED_CLIENT_EMAIL=$(grep -E '^SEED_CLIENT_EMAIL=' "$ENV_FILE" | cut -d= -f2-)
+            SEED_CLIENT_PASSWORD=$(grep -E '^SEED_CLIENT_PASSWORD=' "$ENV_FILE" | cut -d= -f2-)
+            if [ -n "$SEED_ADMIN_PASSWORD" ]; then
+              sudo docker run --rm \
+                --network "$NETWORK" \
+                --env-file "$ENV_FILE" \
+                -e DATABASE_URL="postgresql://breeyard:${POSTGRES_PASSWORD}@breeyard-postgres:5432/breeyard" \
+                -e SEED_ADMIN_EMAIL="$SEED_ADMIN_EMAIL" \
+                -e SEED_ADMIN_NAME="$SEED_ADMIN_NAME" \
+                -e SEED_ADMIN_PASSWORD="$SEED_ADMIN_PASSWORD" \
+                -e SEED_CLIENT_EMAIL="$SEED_CLIENT_EMAIL" \
+                -e SEED_CLIENT_PASSWORD="$SEED_CLIENT_PASSWORD" \
+                breeyard-api \
+                node /app/node_modules/@breeyard/database/dist/seed.js \
+                || echo "::warning::Seed failed — check DB manually"
+            else
+              echo "::warning::SEED_ADMIN_PASSWORD not set — skipping seed"
+            fi
+
             # Rolling restart: api first, then frontends
             for service in api web cms crm portal portfolio; do
               $COMPOSE up -d --no-build $service
