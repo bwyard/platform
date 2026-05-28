@@ -75,6 +75,9 @@ services:
     build:
       context: ../..
       dockerfile: apps/web/Dockerfile
+      args:
+        PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
+        PUBLIC_PORTAL_URL: ${PUBLIC_PORTAL_URL}
     image: breeyard-web
     container_name: breeyard-web
     restart: unless-stopped
@@ -102,6 +105,8 @@ services:
     build:
       context: ../..
       dockerfile: apps/cms/Dockerfile
+      args:
+        PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
     image: breeyard-cms
     container_name: breeyard-cms
     restart: unless-stopped
@@ -128,6 +133,8 @@ services:
     build:
       context: ../..
       dockerfile: apps/crm/Dockerfile
+      args:
+        PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
     image: breeyard-crm
     container_name: breeyard-crm
     restart: unless-stopped
@@ -154,6 +161,8 @@ services:
     build:
       context: ../..
       dockerfile: apps/portal/Dockerfile
+      args:
+        PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
     image: breeyard-portal
     container_name: breeyard-portal
     restart: unless-stopped

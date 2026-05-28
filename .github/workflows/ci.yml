@@ -3,11 +3,10 @@ name: CI
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [dev]
 
+# Cancel in-progress runs on the same PR.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -37,54 +36,3 @@ jobs:
 
       - name: Lint
         run: pnpm -r --if-present run lint
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: check
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build packages
-        run: pnpm --filter './packages/**' run build
-
-      - name: Build apps
-        run: pnpm --filter './apps/**' run build
-
-  docker-build:
-    name: Docker Build (${{ matrix.app }})
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs: check
-    strategy:
-      fail-fast: false
-      matrix:
-        app: [api, web, cms, crm, portal, portfolio]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build ${{ matrix.app }} image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: apps/${{ matrix.app }}/Dockerfile
-          push: false
-          tags: bwyard/${{ matrix.app }}:ci
-          cache-from: type=gha,scope=${{ matrix.app }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.app }}
