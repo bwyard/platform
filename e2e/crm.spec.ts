@@ -22,7 +22,7 @@ test.describe('crm — client management', () => {
   });
 
   test('admin can log in via UI', async ({ browser }) => {
-    const ctx = await browser.newContext();
+    const ctx = await browser.newContext({ storageState: undefined });
     const page = await ctx.newPage();
 
     await page.goto(`${CRM_URL}/login`);
