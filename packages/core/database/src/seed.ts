@@ -3,21 +3,18 @@
 // Run: tsx --env-file=../../.env src/seed.ts
 // ============================================================
 
-import { promisify } from 'node:util';
-import { scrypt, randomBytes } from 'node:crypto';
+import { scryptSync, randomBytes } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 
-const scryptAsync = promisify(scrypt);
-
-const hashPassword = async (password: string): Promise<string> => {
+const hashPassword = (password: string): string => {
   const salt = randomBytes(16).toString('hex');
-  const key = (await scryptAsync(password.normalize('NFKC'), salt, 64, {
+  const key = scryptSync(password.normalize('NFKC'), salt, 64, {
     N: 16384,
     r: 16,
     p: 1,
     maxmem: 128 * 16384 * 16 * 2,
-  })) as Buffer;
-  return `${salt}:${key.toString('hex')}`;
+  });
+  return `${salt}:${Buffer.from(key).toString('hex')}`;
 };
 import { getDatabase } from './client.js';
 import {
@@ -65,7 +62,7 @@ const seedUsers = async (): Promise<{ adminId: string; clientUserId: string }> =
   const ids: Record<string, string> = {};
 
   for (const u of SEED_USERS) {
-    const passwordHash = await hashPassword(u.password);
+    const passwordHash = hashPassword(u.password);
 
     // Upsert user row — update email/name/updatedAt if fixedId already exists
     const existing = await db
