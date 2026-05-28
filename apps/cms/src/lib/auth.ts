@@ -8,9 +8,7 @@ import { PUBLIC_API_URL } from '$env/static/public';
 import { createAuthClient } from 'better-auth/svelte';
 
 const apiBase: string =
-  typeof window !== 'undefined'
-    ? PUBLIC_API_URL || 'http://localhost:3400'
-    : 'http://localhost:3400';
+  typeof window !== 'undefined' ? PUBLIC_API_URL : (process.env.INTERNAL_API_URL ?? '');
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const authClient: ReturnType<typeof createAuthClient<any>> = createAuthClient({
