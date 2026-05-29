@@ -1,28 +1,23 @@
-import { test, expect } from '@playwright/test';
-
-// Runs with storageState: e2e/.auth/admin.json — already authenticated.
+import { test, expect } from './fixtures';
 
 test.describe('cms — content management', () => {
-  test('dashboard loads', async ({ page }) => {
-    await page.goto('http://localhost:3012/dashboard');
+  test('dashboard loads', async ({ page, urls }) => {
+    await page.goto(`${urls.cms}/dashboard`);
     await expect(page).toHaveURL(/dashboard/);
   });
 
-  test('blocks section loads', async ({ page }) => {
-    await page.goto('http://localhost:3012/blocks');
+  test('blocks section loads', async ({ page, urls }) => {
+    await page.goto(`${urls.cms}/blocks`);
     await expect(page).toHaveURL(/blocks/);
   });
 
-  test('nav section loads', async ({ page }) => {
-    await page.goto('http://localhost:3012/nav');
+  test('nav section loads', async ({ page, urls }) => {
+    await page.goto(`${urls.cms}/nav`);
     await expect(page).toHaveURL(/nav/);
   });
 
-  test('unauthenticated user is redirected to login', async ({ browser }) => {
-    const ctx = await browser.newContext({ storageState: undefined });
-    const page = await ctx.newPage();
-    await page.goto('http://localhost:3012/dashboard');
-    await expect(page).toHaveURL(/login/);
-    await ctx.close();
+  test('unauthenticated user is redirected to login', async ({ unauthedPage, urls }) => {
+    await unauthedPage.goto(`${urls.cms}/dashboard`);
+    await expect(unauthedPage).toHaveURL(/login/);
   });
 });

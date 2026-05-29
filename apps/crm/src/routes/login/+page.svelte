@@ -31,6 +31,7 @@
         <label for="email" class="text-sm font-medium">Email</label>
         <input
           id="email"
+          data-testid="login-email"
           type="email"
           bind:value={email}
           required
@@ -43,6 +44,7 @@
         <div class="relative">
           <input
             id="password"
+            data-testid="login-password"
             type={showPassword ? 'text' : 'password'}
             bind:value={password}
             required
@@ -100,6 +102,7 @@
       {#if error}<p class="text-sm text-red-600">{error}</p>{/if}
       <button
         type="submit"
+        data-testid="login-submit"
         disabled={loading}
         class="rounded bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
       >
