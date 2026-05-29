@@ -13,6 +13,7 @@ const apiBase: string =
 export const authClient: ReturnType<typeof createAuthClient<any>> = createAuthClient({
   baseURL: apiBase,
   basePath: '/auth',
+  fetchOptions: { credentials: 'include' },
 });
 
 export const { signIn, signOut, useSession } = authClient;
