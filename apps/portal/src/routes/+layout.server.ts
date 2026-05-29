@@ -1,5 +1,6 @@
 // ============================================================
-// Portal root layout — auth guard (client role only)
+// Portal root layout — auth guard (client + admin)
+// Admins can log in to see what clients see. All other roles blocked.
 // Public routes: /login, /register, /forgot-password, /reset-password.
 // ============================================================
 
@@ -21,7 +22,9 @@ export const load: LayoutServerLoad = async (event) => {
     throw redirect(302, '/login');
   }
 
-  if (session.user.role !== 'client') {
+  const allowed = ['client', 'admin'];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  if (!allowed.includes(session.user.role!)) {
     // eslint-disable-next-line @typescript-eslint/only-throw-error
     throw error(403, 'Access denied');
   }

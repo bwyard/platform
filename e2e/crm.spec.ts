@@ -28,8 +28,8 @@ test.describe('crm — client management', () => {
     await page.goto(`${CRM_URL}/login`);
     // Wait for Vite to finish serving the JS bundle so Svelte hydrates before we interact
     await page.waitForLoadState('networkidle');
-    await page.getByLabel('Email').fill(process.env.E2E_ADMIN_EMAIL ?? 'bree@8ofwands.com');
-    await page.getByLabel('Password').fill(process.env.E2E_ADMIN_PASSWORD ?? '');
+    await page.locator('#email').fill(process.env.E2E_ADMIN_EMAIL ?? 'bree@8ofwands.com');
+    await page.locator('#password').fill(process.env.E2E_ADMIN_PASSWORD ?? '');
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page).toHaveURL(/\/clients/, { timeout: 15_000 });
 
