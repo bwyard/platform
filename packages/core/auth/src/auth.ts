@@ -27,7 +27,6 @@ export const createAuth = (): Auth =>
       enabled: true,
       requireEmailVerification: false,
       sendResetPassword: async ({ user, url }: { user: { email: string }; url: string }) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         await getMailClient().sendPasswordReset(user.email, { resetUrl: url });
       },
     },
@@ -52,6 +51,12 @@ export const createAuth = (): Auth =>
     advanced: {
       cookiePrefix: 'breeyard',
       generateId: () => crypto.randomUUID(),
+      // In production, COOKIE_DOMAIN=.8ofwands.com shares the session cookie across
+      // all subdomains (api, crm, portal). Not needed locally — localhost ports share
+      // cookies without this.
+      ...(process.env.COOKIE_DOMAIN
+        ? { crossSubDomainCookies: { enabled: true, domain: process.env.COOKIE_DOMAIN } }
+        : {}),
     },
     trustedOrigins: (process.env.TRUSTED_ORIGINS ?? '').split(',').filter(Boolean),
   }) as unknown as Auth;
