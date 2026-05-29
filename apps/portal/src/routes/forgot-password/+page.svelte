@@ -40,6 +40,7 @@
           <label for="email" class="text-sm font-medium">Email</label>
           <input
             id="email"
+            data-testid="forgot-password-email"
             type="email"
             bind:value={email}
             required
@@ -50,6 +51,7 @@
         {#if error}<p class="text-sm text-red-600">{error}</p>{/if}
         <button
           type="submit"
+          data-testid="forgot-password-submit"
           disabled={loading}
           class="rounded bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
