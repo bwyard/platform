@@ -59,6 +59,7 @@
           <label for="password" class="text-sm font-medium">New password</label>
           <input
             id="password"
+            data-testid="reset-password-new"
             type="password"
             bind:value={password}
             required
@@ -70,6 +71,7 @@
           <label for="confirm" class="text-sm font-medium">Confirm password</label>
           <input
             id="confirm"
+            data-testid="reset-password-confirm"
             type="password"
             bind:value={confirm}
             required
@@ -80,6 +82,7 @@
         {#if error}<p class="text-sm text-red-600">{error}</p>{/if}
         <button
           type="submit"
+          data-testid="reset-password-submit"
           disabled={loading}
           class="rounded bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
         >

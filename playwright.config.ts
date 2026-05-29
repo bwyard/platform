@@ -78,48 +78,50 @@ export default defineConfig({
     },
   ],
 
-  webServer: [
-    {
-      name: 'api',
-      command: 'pnpm --filter @breeyard/api dev',
-      url: 'http://localhost:3010/health',
-      reuseExistingServer: true,
-      timeout: 60_000,
-    },
-    {
-      name: 'web',
-      command: 'pnpm --filter @breeyard/web dev',
-      url: 'http://localhost:3011',
-      reuseExistingServer: true,
-      timeout: 60_000,
-    },
-    {
-      name: 'cms',
-      command: 'pnpm --filter @breeyard/cms dev',
-      url: 'http://localhost:3012',
-      reuseExistingServer: true,
-      timeout: 60_000,
-    },
-    {
-      name: 'crm',
-      command: 'pnpm --filter @breeyard/crm dev',
-      url: 'http://localhost:3013',
-      reuseExistingServer: true,
-      timeout: 60_000,
-    },
-    {
-      name: 'portal',
-      command: 'pnpm --filter @breeyard/portal dev',
-      url: 'http://localhost:3014',
-      reuseExistingServer: true,
-      timeout: 60_000,
-    },
-    {
-      name: 'portfolio',
-      command: 'pnpm --filter @breeyard/portfolio dev',
-      url: 'http://localhost:3015',
-      reuseExistingServer: true,
-      timeout: 60_000,
-    },
-  ],
+  webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
+    ? []
+    : [
+        {
+          name: 'api',
+          command: 'pnpm --filter @breeyard/api dev',
+          url: 'http://localhost:3010/health',
+          reuseExistingServer: true,
+          timeout: 60_000,
+        },
+        {
+          name: 'web',
+          command: 'pnpm --filter @breeyard/web dev',
+          url: 'http://localhost:3011',
+          reuseExistingServer: true,
+          timeout: 60_000,
+        },
+        {
+          name: 'cms',
+          command: 'pnpm --filter @breeyard/cms dev',
+          url: 'http://localhost:3012',
+          reuseExistingServer: true,
+          timeout: 60_000,
+        },
+        {
+          name: 'crm',
+          command: 'pnpm --filter @breeyard/crm dev',
+          url: 'http://localhost:3013',
+          reuseExistingServer: true,
+          timeout: 60_000,
+        },
+        {
+          name: 'portal',
+          command: 'pnpm --filter @breeyard/portal dev',
+          url: 'http://localhost:3014',
+          reuseExistingServer: true,
+          timeout: 60_000,
+        },
+        {
+          name: 'portfolio',
+          command: 'pnpm --filter @breeyard/portfolio dev',
+          url: 'http://localhost:3015',
+          reuseExistingServer: true,
+          timeout: 60_000,
+        },
+      ],
 });

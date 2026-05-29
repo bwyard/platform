@@ -1,10 +1,19 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
+import type { Plugin } from 'vite';
+
+const stripTestIds = (): Plugin => ({
+  name: 'strip-test-ids',
+  enforce: 'pre',
+  transform(code, id) {
+    if (!id.endsWith('.svelte') || process.env.NODE_ENV !== 'production') return;
+    return { code: code.replace(/\s+data-testid="[^"]*"/g, ''), map: null };
+  },
+});
 
 export default defineConfig({
-  // Load .env from monorepo root so INTERNAL_API_URL / PUBLIC_API_URL are available
   envDir: '../../',
-  plugins: [tailwindcss(), sveltekit()],
+  plugins: [tailwindcss(), sveltekit(), stripTestIds()],
   server: { port: 3011, strictPort: true },
 });
