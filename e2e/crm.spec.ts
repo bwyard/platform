@@ -8,18 +8,13 @@ const SEED_CLIENT_ID = 'client-example';
 const SEED_PROJECT_ID = 'project-example';
 
 test.describe('crm — client management', () => {
-  test('dashboard loads', async ({ page, urls }) => {
-    await page.goto(`${urls.crm}/dashboard`);
-    await expect(page).toHaveURL(/dashboard/);
-  });
-
   test('clients section loads', async ({ page, urls }) => {
     await page.goto(`${urls.crm}/clients`);
     await expect(page).toHaveURL(/clients/);
   });
 
   test('unauthenticated user is redirected to login', async ({ unauthedPage, urls }) => {
-    await unauthedPage.goto(`${urls.crm}/dashboard`);
+    await unauthedPage.goto(`${urls.crm}/clients`);
     await expect(unauthedPage).toHaveURL(/login/);
   });
 

@@ -9,7 +9,7 @@ export const createLoginPage = (page: Page, baseUrl: string) => {
   const heading = () => page.getByRole('heading', { name: /sign in/i });
 
   const login = async (email: string, password: string) => {
-    await page.waitForLoadState('networkidle');
+    await emailInput().waitFor({ state: 'visible' });
     await emailInput().fill(email);
     await passwordInput().fill(password);
     await submitButton().click();
