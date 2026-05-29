@@ -51,6 +51,7 @@ services:
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
       TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
       CORS_ORIGINS: ${CORS_ORIGINS}
       SMTP_HOST: ${SMTP_HOST}
@@ -93,6 +94,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
     depends_on:
       postgres:
         condition: service_healthy
@@ -121,6 +123,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
     depends_on:
       postgres:
         condition: service_healthy
@@ -149,6 +152,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
     depends_on:
       postgres:
         condition: service_healthy
@@ -177,6 +181,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
     depends_on:
       postgres:
         condition: service_healthy
