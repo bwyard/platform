@@ -120,6 +120,22 @@
         </div>
       </div>
 
+      <!-- Messages -->
+      <a
+        href="/clients/{data.client.id}/messages"
+        data-testid="messages-link"
+        class="flex items-center justify-between rounded-lg border p-4 text-sm hover:bg-gray-50"
+      >
+        <span class="font-medium">Messages</span>
+        {#if data.unreadCount > 0}
+          <span class="rounded-full bg-black px-2 py-0.5 text-xs font-semibold text-white">
+            {data.unreadCount}
+          </span>
+        {:else}
+          <span class="text-gray-400">→</span>
+        {/if}
+      </a>
+
       <!-- Portal access -->
       <div class="space-y-3 rounded-lg border p-4 text-sm">
         <p class="text-xs font-medium tracking-wide text-gray-400 uppercase">Portal access</p>
