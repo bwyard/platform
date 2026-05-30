@@ -26,6 +26,7 @@ export default tseslint.config(
             // apps/admin kept until directory is manually deleted
             'apps/admin/svelte.config.js',
             'packages/core/database/drizzle.config.ts',
+            'playwright.config.weekly.ts',
           ],
         },
         tsconfigRootDir: import.meta.dirname,
@@ -42,7 +43,7 @@ export default tseslint.config(
   // Root config files (vitest, playwright) use tool types not hoisted to root —
   // type-unsafe rules produce false positives here.
   {
-    files: ['vitest.config.ts', 'playwright.config.ts'],
+    files: ['vitest.config.ts', 'playwright.config.ts', 'playwright.config.weekly.ts'],
     rules: {
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
