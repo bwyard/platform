@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 # Cancel in-progress runs on the same PR.
 concurrency:
@@ -43,10 +43,71 @@ jobs:
           PUBLIC_PORTAL_URL: https://portal.8ofwands.com
         run: pnpm -r --if-present run lint
 
+  test:
+    name: Unit + Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: breeyard
+          POSTGRES_PASSWORD: breeyard
+          POSTGRES_DB: breeyard
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://breeyard:breeyard@localhost:5432/breeyard
+      BETTER_AUTH_SECRET: ci-test-secret-minimum-32-chars-placeholder
+      BETTER_AUTH_URL: http://localhost:3010
+      REDIS_URL: redis://localhost:6379
+      TRUSTED_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
+      CORS_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm --filter './packages/**' run build
+
+      - name: Run migrations
+        run: pnpm --filter @breeyard/database db:migrate
+
+      - name: Run tests
+        run: pnpm -r --if-present run test --run
+
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # E2E only on PRs to main — too slow for every dev branch
+    if: github.base_ref == 'main'
 
     services:
       postgres:
