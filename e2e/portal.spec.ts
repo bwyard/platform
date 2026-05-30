@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures';
-import { createLoginPage } from './pages/login.page';
+import { loginPage } from './pages/login.page';
 import { createForgotPasswordPage } from './pages/portal/forgot-password.page';
 import { createResetPasswordPage } from './pages/portal/reset-password.page';
 import { createPortalProjectDetailPage } from './pages/portal/project-detail.page';
@@ -8,14 +8,14 @@ const SEED_PROJECT_ID = 'project-example';
 
 test.describe('portal — client portal', () => {
   test('login page loads', async ({ page, urls }) => {
-    const login = createLoginPage(page, urls.portal);
-    await login.goto();
+    const login = loginPage(page);
+    await login.goto(urls.portal);
     await expect(login.heading()).toBeVisible();
   });
 
   test('login page has forgot password link', async ({ page, urls }) => {
-    const login = createLoginPage(page, urls.portal);
-    await login.goto();
+    const login = loginPage(page);
+    await login.goto(urls.portal);
     await expect(login.forgotPasswordLink()).toBeVisible();
   });
 

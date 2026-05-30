@@ -1,9 +1,9 @@
 import { test, expect } from './fixtures';
 
 test.describe('cms — content management', () => {
-  test('dashboard loads', async ({ page, urls }) => {
-    await page.goto(`${urls.cms}/dashboard`);
-    await expect(page).toHaveURL(/dashboard/);
+  test('pages section loads', async ({ page, urls }) => {
+    await page.goto(`${urls.cms}/pages`);
+    await expect(page).toHaveURL(/pages/);
   });
 
   test('blocks section loads', async ({ page, urls }) => {
@@ -17,7 +17,7 @@ test.describe('cms — content management', () => {
   });
 
   test('unauthenticated user is redirected to login', async ({ unauthedPage, urls }) => {
-    await unauthedPage.goto(`${urls.cms}/dashboard`);
+    await unauthedPage.goto(`${urls.cms}/pages`);
     await expect(unauthedPage).toHaveURL(/login/);
   });
 });

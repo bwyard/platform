@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures';
-import { createLoginPage } from './pages/login.page';
+import { loginPage } from './pages/login.page';
 import { createMessagesPage } from './pages/crm/messages.page';
 import { createClientEditPage } from './pages/crm/client-edit.page';
 import { createProjectDetailPage } from './pages/crm/project-detail.page';
@@ -8,25 +8,19 @@ const SEED_CLIENT_ID = 'client-example';
 const SEED_PROJECT_ID = 'project-example';
 
 test.describe('crm — client management', () => {
-  test('dashboard loads', async ({ page, urls }) => {
-    await page.goto(`${urls.crm}/dashboard`);
-    await expect(page).toHaveURL(/dashboard/);
-  });
-
   test('clients section loads', async ({ page, urls }) => {
     await page.goto(`${urls.crm}/clients`);
     await expect(page).toHaveURL(/clients/);
   });
 
   test('unauthenticated user is redirected to login', async ({ unauthedPage, urls }) => {
-    await unauthedPage.goto(`${urls.crm}/dashboard`);
+    await unauthedPage.goto(`${urls.crm}/clients`);
     await expect(unauthedPage).toHaveURL(/login/);
   });
 
   test('admin can log in via UI', async ({ unauthedPage, urls, credentials }) => {
-    const login = createLoginPage(unauthedPage, urls.crm);
-    await login.goto();
-    await login.login(credentials.admin.email, credentials.admin.password);
+    const login = loginPage(unauthedPage);
+    await login.fillAndSubmit(urls.crm, credentials.admin.email, credentials.admin.password);
     await expect(unauthedPage).toHaveURL(/\/clients/, { timeout: 15_000 });
   });
 });
