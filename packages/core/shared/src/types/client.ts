@@ -53,3 +53,23 @@ export interface CreateProjectInput {
   hoursPerMonth?: number;
   rateInCents?: number;
 }
+
+export interface UpdateClientInput {
+  name?: string;
+  email?: string;
+  company?: string | null;
+  phone?: string | null;
+  techLevel?: ClientTechLevel;
+  status?: ClientStatus;
+  notes?: string | null;
+}
+
+export interface UpdateProjectInput {
+  name?: string;
+  description?: string | null;
+  status?: ProjectStatus;
+  hoursPerMonth?: number | null;
+  rateInCents?: number | null;
+  startedAt?: string | null;
+  completedAt?: string | null;
+}

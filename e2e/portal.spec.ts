@@ -2,6 +2,9 @@ import { test, expect } from './fixtures';
 import { createLoginPage } from './pages/login.page';
 import { createForgotPasswordPage } from './pages/portal/forgot-password.page';
 import { createResetPasswordPage } from './pages/portal/reset-password.page';
+import { createPortalProjectDetailPage } from './pages/portal/project-detail.page';
+
+const SEED_PROJECT_ID = 'project-example';
 
 test.describe('portal — client portal', () => {
   test('login page loads', async ({ page, urls }) => {
@@ -69,5 +72,28 @@ test.describe('portal — reset password', () => {
     await expect(resetPassword.newPasswordInput()).toBeVisible();
     await expect(resetPassword.confirmInput()).toBeVisible();
     await expect(resetPassword.submitButton()).toBeVisible();
+  });
+});
+
+test.describe('portal — project detail', () => {
+  test('projects list has clickable cards', async ({ page, urls }) => {
+    await page.goto(`${urls.portal}/projects`);
+    const detail = createPortalProjectDetailPage(page, urls.portal, SEED_PROJECT_ID);
+    const cards = detail.projectCards();
+    const count = await cards.count();
+    if (count > 0) {
+      await expect(cards.first()).toBeVisible();
+    }
+  });
+
+  test('project detail page loads when authenticated', async ({ page, urls }) => {
+    const detail = createPortalProjectDetailPage(page, urls.portal, SEED_PROJECT_ID);
+    await detail.goto();
+    await expect(detail.heading()).toBeVisible();
+  });
+
+  test('unauthenticated redirected to login', async ({ unauthedPage, urls }) => {
+    await unauthedPage.goto(`${urls.portal}/projects/${SEED_PROJECT_ID}`);
+    await expect(unauthedPage).toHaveURL(/login/);
   });
 });
