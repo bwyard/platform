@@ -39,12 +39,21 @@
             <p class="mt-1 text-gray-500">{data.client.company}</p>
           {/if}
         </div>
-        <span
-          class="rounded-full px-3 py-1 text-sm font-medium {statusColors[data.client.status] ??
-            ''}"
-        >
-          {data.client.status}
-        </span>
+        <div class="flex items-center gap-2">
+          <a
+            href="/clients/{data.client.id}/edit"
+            data-testid="edit-client-link"
+            class="rounded border px-3 py-1 text-sm font-medium hover:bg-gray-50"
+          >
+            Edit
+          </a>
+          <span
+            class="rounded-full px-3 py-1 text-sm font-medium {statusColors[data.client.status] ??
+              ''}"
+          >
+            {data.client.status}
+          </span>
+        </div>
       </div>
 
       <!-- Projects -->
@@ -119,6 +128,22 @@
           <p class="text-gray-800">{new Date(data.client.createdAt).toLocaleDateString()}</p>
         </div>
       </div>
+
+      <!-- Messages -->
+      <a
+        href="/clients/{data.client.id}/messages"
+        data-testid="messages-link"
+        class="flex items-center justify-between rounded-lg border p-4 text-sm hover:bg-gray-50"
+      >
+        <span class="font-medium">Messages</span>
+        {#if data.unreadCount > 0}
+          <span class="rounded-full bg-black px-2 py-0.5 text-xs font-semibold text-white">
+            {data.unreadCount}
+          </span>
+        {:else}
+          <span class="text-gray-400">→</span>
+        {/if}
+      </a>
 
       <!-- Portal access -->
       <div class="space-y-3 rounded-lg border p-4 text-sm">

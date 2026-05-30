@@ -14,6 +14,7 @@ import { navRoutes } from './routes/v1/nav.js';
 import { blocksRoutes } from './routes/v1/blocks.js';
 import { configRoutes } from './routes/v1/config.js';
 import { clientsRoutes } from './routes/v1/clients.js';
+import { projectsRoutes } from './routes/v1/projects.js';
 import { portalRoutes } from './routes/v1/portal.js';
 
 export const buildServer = async () => {
@@ -47,6 +48,7 @@ export const buildServer = async () => {
   await server.register(blocksRoutes, { prefix: '/v1/blocks' });
   await server.register(configRoutes, { prefix: '/v1/config' });
   await server.register(clientsRoutes, { prefix: '/v1/clients' });
+  await server.register(projectsRoutes, { prefix: '/v1/projects' });
   await server.register(portalRoutes, { prefix: '/v1/portal' });
 
   return server;

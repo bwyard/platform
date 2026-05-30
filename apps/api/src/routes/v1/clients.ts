@@ -1,17 +1,21 @@
 // ============================================================
 // Clients routes — /v1/clients
-// GET  /v1/clients               — list all clients
-// POST /v1/clients               — create a client
-// GET  /v1/clients/:id           — get one client + projects
-// POST /v1/clients/:id/invite    — create portal account + send welcome email
-// POST /v1/clients/:id/projects  — create a project for a client
+// GET    /v1/clients                    — list all clients
+// POST   /v1/clients                    — create a client
+// GET    /v1/clients/:id                — get one client + projects + unreadCount
+// PATCH  /v1/clients/:id                — update client fields
+// DELETE /v1/clients/:id                — archive client (status → churned)
+// POST   /v1/clients/:id/invite         — create portal account + send welcome email
+// POST   /v1/clients/:id/projects       — create a project for a client
+// GET    /v1/clients/:id/messages       — thread for a client (marks client msgs read)
+// POST   /v1/clients/:id/messages       — admin reply to a client
 // ============================================================
 
 import type { FastifyInstance } from 'fastify';
-import { getDatabase, clients, projects, users } from '@breeyard/database';
-import { eq, desc } from 'drizzle-orm';
+import { getDatabase, clients, projects, users, messages } from '@breeyard/database';
+import { eq, desc, asc, and, isNull, count } from 'drizzle-orm';
 import { apiSuccess, apiError } from '@breeyard/shared';
-import type { CreateClientInput, CreateProjectInput } from '@breeyard/shared';
+import type { CreateClientInput, CreateProjectInput, UpdateClientInput } from '@breeyard/shared';
 import { getAuth } from '@breeyard/auth';
 import { getMailClient } from '@breeyard/mail';
 
@@ -66,13 +70,80 @@ export const clientsRoutes = async (fastify: FastifyInstance): Promise<void> => 
       return reply.status(404).send(apiError('NOT_FOUND', 'Client not found.'));
     }
 
-    const clientProjects = await db
-      .select()
-      .from(projects)
-      .where(eq(projects.clientId, client.id))
-      .orderBy(desc(projects.createdAt));
+    const [clientProjects, [unread]] = await Promise.all([
+      db
+        .select()
+        .from(projects)
+        .where(eq(projects.clientId, client.id))
+        .orderBy(desc(projects.createdAt)),
+      db
+        .select({ value: count() })
+        .from(messages)
+        .where(
+          and(
+            eq(messages.clientId, client.id),
+            eq(messages.fromClient, true),
+            isNull(messages.readAt),
+          ),
+        ),
+    ]);
 
-    return reply.send(apiSuccess({ ...client, projects: clientProjects }));
+    return reply.send(
+      apiSuccess({ ...client, projects: clientProjects, unreadCount: unread?.value ?? 0 }),
+    );
+  });
+
+  // ---- PATCH /v1/clients/:id ----
+  fastify.patch<{ Params: { id: string }; Body: UpdateClientInput }>(
+    '/:id',
+    async (request, reply) => {
+      const db = getDatabase();
+
+      const [existing] = await db
+        .select({ id: clients.id })
+        .from(clients)
+        .where(eq(clients.id, request.params.id))
+        .limit(1);
+      if (!existing) return reply.status(404).send(apiError('NOT_FOUND', 'Client not found.'));
+
+      const { name, email, company, phone, techLevel, status, notes } = request.body;
+
+      const [updated] = await db
+        .update(clients)
+        .set({
+          ...(name !== undefined && { name: name.trim() }),
+          ...(email !== undefined && { email: email.trim() }),
+          ...(company !== undefined && { company: company?.trim() ?? null }),
+          ...(phone !== undefined && { phone: phone?.trim() ?? null }),
+          ...(techLevel !== undefined && { techLevel }),
+          ...(status !== undefined && { status }),
+          ...(notes !== undefined && { notes: notes?.trim() ?? null }),
+          updatedAt: new Date(),
+        })
+        .where(eq(clients.id, request.params.id))
+        .returning();
+
+      return reply.send(apiSuccess(updated));
+    },
+  );
+
+  // ---- DELETE /v1/clients/:id (archive) ----
+  fastify.delete<{ Params: { id: string } }>('/:id', async (request, reply) => {
+    const db = getDatabase();
+
+    const [existing] = await db
+      .select({ id: clients.id })
+      .from(clients)
+      .where(eq(clients.id, request.params.id))
+      .limit(1);
+    if (!existing) return reply.status(404).send(apiError('NOT_FOUND', 'Client not found.'));
+
+    await db
+      .update(clients)
+      .set({ status: 'churned', updatedAt: new Date() })
+      .where(eq(clients.id, request.params.id));
+
+    return reply.send(apiSuccess({ archived: true }));
   });
 
   // ---- POST /v1/clients/:id/invite ----
@@ -125,7 +196,7 @@ export const clientsRoutes = async (fastify: FastifyInstance): Promise<void> => 
       .where(eq(clients.id, client.id));
 
     const portalUrl = process.env.PORTAL_URL ?? 'http://localhost:3014';
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     await getMailClient().sendWelcome(client.email, { name: client.name, loginUrl: portalUrl });
 
     return reply.send(apiSuccess({ invited: true }));
@@ -169,6 +240,69 @@ export const clientsRoutes = async (fastify: FastifyInstance): Promise<void> => 
         .returning();
 
       return reply.status(201).send(apiSuccess(project));
+    },
+  );
+
+  // ---- GET /v1/clients/:id/messages ----
+  fastify.get<{ Params: { id: string } }>('/:id/messages', async (request, reply) => {
+    const db = getDatabase();
+
+    const [client] = await db
+      .select({ id: clients.id })
+      .from(clients)
+      .where(eq(clients.id, request.params.id))
+      .limit(1);
+    if (!client) return reply.status(404).send(apiError('NOT_FOUND', 'Client not found.'));
+
+    const thread = await db
+      .select()
+      .from(messages)
+      .where(eq(messages.clientId, client.id))
+      .orderBy(asc(messages.createdAt));
+
+    await db
+      .update(messages)
+      .set({ readAt: new Date() })
+      .where(
+        and(
+          eq(messages.clientId, client.id),
+          eq(messages.fromClient, true),
+          isNull(messages.readAt),
+        ),
+      );
+
+    return reply.send(apiSuccess(thread));
+  });
+
+  // ---- POST /v1/clients/:id/messages ----
+  fastify.post<{ Params: { id: string }; Body: { body: string } }>(
+    '/:id/messages',
+    async (request, reply) => {
+      const db = getDatabase();
+
+      const [client] = await db
+        .select({ id: clients.id })
+        .from(clients)
+        .where(eq(clients.id, request.params.id))
+        .limit(1);
+      if (!client) return reply.status(404).send(apiError('NOT_FOUND', 'Client not found.'));
+
+      const { body: messageBody } = request.body;
+      if (!messageBody.trim()) {
+        return reply.status(400).send(apiError('VALIDATION_ERROR', 'body is required.'));
+      }
+
+      const [message] = await db
+        .insert(messages)
+        .values({
+          id: crypto.randomUUID(),
+          clientId: client.id,
+          fromClient: false,
+          body: messageBody.trim(),
+        })
+        .returning();
+
+      return reply.status(201).send(apiSuccess(message));
     },
   );
 };
