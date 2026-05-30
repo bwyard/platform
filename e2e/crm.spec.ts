@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures';
-import { createLoginPage } from './pages/login.page';
+import { loginPage } from './pages/login.page';
 import { createMessagesPage } from './pages/crm/messages.page';
 import { createClientEditPage } from './pages/crm/client-edit.page';
 import { createProjectDetailPage } from './pages/crm/project-detail.page';
@@ -19,9 +19,8 @@ test.describe('crm — client management', () => {
   });
 
   test('admin can log in via UI', async ({ unauthedPage, urls, credentials }) => {
-    const login = createLoginPage(unauthedPage, urls.crm);
-    await login.goto();
-    await login.login(credentials.admin.email, credentials.admin.password);
+    const login = loginPage(unauthedPage);
+    await login.fillAndSubmit(urls.crm, credentials.admin.email, credentials.admin.password);
     await expect(unauthedPage).toHaveURL(/\/clients/, { timeout: 15_000 });
   });
 });
