@@ -51,11 +51,13 @@ jobs:
       CORS_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
       TRUSTED_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
       E2E_ADMIN_EMAIL: bree@8ofwands.com
-      E2E_ADMIN_PASSWORD: orbittigerstone530
+      E2E_ADMIN_PASSWORD: ${{ secrets.SEED_ADMIN_PASSWORD }}
+      E2E_CLIENT_EMAIL: client@example.com
+      E2E_CLIENT_PASSWORD: ${{ secrets.SEED_CLIENT_PASSWORD }}
       SEED_ADMIN_EMAIL: bree@8ofwands.com
-      SEED_ADMIN_PASSWORD: orbittigerstone530
+      SEED_ADMIN_PASSWORD: ${{ secrets.SEED_ADMIN_PASSWORD }}
       SEED_CLIENT_EMAIL: client@example.com
-      SEED_CLIENT_PASSWORD: blazecedarstone952
+      SEED_CLIENT_PASSWORD: ${{ secrets.SEED_CLIENT_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v4
@@ -75,7 +77,7 @@ jobs:
 
       - name: Write .env for dev scripts
         run: |
-          cat > .env << 'EOF'
+          cat > .env << EOF
           DATABASE_URL=postgresql://breeyard:breeyard@localhost:5432/breeyard
           BETTER_AUTH_SECRET=e2e-test-secret-minimum-32-chars-placeholder
           BETTER_AUTH_URL=http://localhost:3010
@@ -87,9 +89,9 @@ jobs:
           CORS_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
           TRUSTED_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
           SEED_ADMIN_EMAIL=bree@8ofwands.com
-          SEED_ADMIN_PASSWORD=orbittigerstone530
+          SEED_ADMIN_PASSWORD=${SEED_ADMIN_PASSWORD}
           SEED_CLIENT_EMAIL=client@example.com
-          SEED_CLIENT_PASSWORD=blazecedarstone952
+          SEED_CLIENT_PASSWORD=${SEED_CLIENT_PASSWORD}
           EOF
 
       - name: Run migrations
