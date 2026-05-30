@@ -1,16 +1,16 @@
 import { test, expect } from './fixtures';
-import { createPortfolioHomePage } from './pages/portfolio/home.page';
+import { portfolioHomePage } from './pages/portfolio/home.page';
 
 test.describe('portfolio — breeyard.com', () => {
   test('home page loads', async ({ page, urls }) => {
-    const home = createPortfolioHomePage(page, urls.portfolio);
-    await home.goto();
+    const home = portfolioHomePage(page);
+    await home.goto(urls.portfolio);
     await expect(page).toHaveTitle(/.+/);
   });
 
   test('no login required', async ({ page, urls }) => {
-    const home = createPortfolioHomePage(page, urls.portfolio);
-    await home.goto();
+    const home = portfolioHomePage(page);
+    await home.goto(urls.portfolio);
     await expect(page).not.toHaveURL(/login/);
   });
 });

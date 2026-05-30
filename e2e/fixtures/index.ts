@@ -5,6 +5,7 @@ import { config } from '../config';
 interface Fixtures {
   urls: typeof config.urls;
   credentials: typeof config.credentials;
+  authedPage: Page;
   unauthedPage: Page;
 }
 
@@ -13,12 +14,15 @@ const test = base.extend<Fixtures>({
   urls: async ({}, use) => use(config.urls),
   // eslint-disable-next-line no-empty-pattern
   credentials: async ({}, use) => use(config.credentials),
+  // authedPage is the standard page fixture re-exported under an explicit name.
+  // The project storageState (set in playwright.config.ts) provides auth.
+  authedPage: async ({ page }, use) => use(page),
   unauthedPage: async ({ browser }, use) => {
     // Explicitly clear cookies — localhost cookies (domain: 'localhost') are shared
     // across Chromium contexts, so we must explicitly zero them out.
     const ctx = await browser.newContext({ storageState: { cookies: [], origins: [] } });
-    const page = await ctx.newPage();
-    await use(page);
+    const freshPage = await ctx.newPage();
+    await use(freshPage);
     await ctx.close();
   },
 });
