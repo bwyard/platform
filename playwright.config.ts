@@ -19,7 +19,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  // 2 workers everywhere — matches CI (2 vCPUs) and keeps dev servers stable.
+  // More workers causes context-setup timeouts on auth guard tests.
+  workers: 2,
   reporter: process.env.CI ? 'github' : 'html',
 
   use: {
@@ -28,10 +30,15 @@ export default defineConfig({
   },
 
   projects: [
-    // 1. Login once, save session state
+    // 1a. Admin login — CRM + CMS
     {
       name: 'setup',
-      testMatch: /.*\.setup\.ts/,
+      testMatch: /admin\.setup\.ts/,
+    },
+    // 1b. Portal client login
+    {
+      name: 'portal-setup',
+      testMatch: /portal\.setup\.ts/,
     },
     // 2. CMS — authed
     {
@@ -64,10 +71,14 @@ export default defineConfig({
       use: { ...devices['iPhone 14'] },
       testMatch: /web\.spec\.ts/,
     },
-    // 5. Portal — public + authed flows
+    // 5. Portal — public + authed flows (client auth)
     {
       name: 'portal-chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'e2e/.auth/portal-client.json',
+      },
+      dependencies: ['portal-setup'],
       testMatch: /portal\.spec\.ts/,
     },
     // 6. Portfolio — public
@@ -98,21 +109,21 @@ export default defineConfig({
         {
           name: 'cms',
           command: 'pnpm --filter @breeyard/cms dev',
-          url: 'http://localhost:3012',
+          url: 'http://localhost:3012/login',
           reuseExistingServer: true,
           timeout: 60_000,
         },
         {
           name: 'crm',
           command: 'pnpm --filter @breeyard/crm dev',
-          url: 'http://localhost:3013',
+          url: 'http://localhost:3013/login',
           reuseExistingServer: true,
           timeout: 60_000,
         },
         {
           name: 'portal',
           command: 'pnpm --filter @breeyard/portal dev',
-          url: 'http://localhost:3014',
+          url: 'http://localhost:3014/login',
           reuseExistingServer: true,
           timeout: 60_000,
         },

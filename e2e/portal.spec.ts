@@ -6,15 +6,16 @@ import { createPortalProjectDetailPage } from './pages/portal/project-detail.pag
 
 const SEED_PROJECT_ID = 'project-example';
 
+// Public page tests use unauthedPage — authenticated users are redirected away from /login
 test.describe('portal — client portal', () => {
-  test('login page loads', async ({ page, urls }) => {
-    const login = loginPage(page);
+  test('login page loads', async ({ unauthedPage, urls }) => {
+    const login = loginPage(unauthedPage);
     await login.goto(urls.portal);
     await expect(login.heading()).toBeVisible();
   });
 
-  test('login page has forgot password link', async ({ page, urls }) => {
-    const login = loginPage(page);
+  test('login page has forgot password link', async ({ unauthedPage, urls }) => {
+    const login = loginPage(unauthedPage);
     await login.goto(urls.portal);
     await expect(login.forgotPasswordLink()).toBeVisible();
   });
@@ -31,42 +32,42 @@ test.describe('portal — client portal', () => {
 });
 
 test.describe('portal — forgot password', () => {
-  test('forgot-password page is publicly accessible', async ({ page, urls }) => {
-    const forgotPassword = createForgotPasswordPage(page, urls.portal);
+  test('forgot-password page is publicly accessible', async ({ unauthedPage, urls }) => {
+    const forgotPassword = createForgotPasswordPage(unauthedPage, urls.portal);
     await forgotPassword.goto();
-    await expect(page).toHaveURL(/forgot-password/);
+    await expect(unauthedPage).toHaveURL(/forgot-password/);
     await expect(forgotPassword.heading()).toBeVisible();
   });
 
-  test('forgot-password has email input and submit button', async ({ page, urls }) => {
-    const forgotPassword = createForgotPasswordPage(page, urls.portal);
+  test('forgot-password has email input and submit button', async ({ unauthedPage, urls }) => {
+    const forgotPassword = createForgotPasswordPage(unauthedPage, urls.portal);
     await forgotPassword.goto();
     await expect(forgotPassword.emailInput()).toBeVisible();
     await expect(forgotPassword.submitButton()).toBeVisible();
   });
 
-  test('forgot-password has back to sign in link', async ({ page, urls }) => {
-    const forgotPassword = createForgotPasswordPage(page, urls.portal);
+  test('forgot-password has back to sign in link', async ({ unauthedPage, urls }) => {
+    const forgotPassword = createForgotPasswordPage(unauthedPage, urls.portal);
     await forgotPassword.goto();
     await expect(forgotPassword.backToSignIn()).toBeVisible();
   });
 });
 
 test.describe('portal — reset password', () => {
-  test('reset-password page is publicly accessible', async ({ page, urls }) => {
-    const resetPassword = createResetPasswordPage(page, urls.portal);
+  test('reset-password page is publicly accessible', async ({ unauthedPage, urls }) => {
+    const resetPassword = createResetPasswordPage(unauthedPage, urls.portal);
     await resetPassword.goto();
-    await expect(page).toHaveURL(/reset-password/);
+    await expect(unauthedPage).toHaveURL(/reset-password/);
   });
 
-  test('reset-password without token shows error state', async ({ page, urls }) => {
-    const resetPassword = createResetPasswordPage(page, urls.portal);
+  test('reset-password without token shows error state', async ({ unauthedPage, urls }) => {
+    const resetPassword = createResetPasswordPage(unauthedPage, urls.portal);
     await resetPassword.goto();
     await expect(resetPassword.errorMessage()).toBeVisible();
   });
 
-  test('reset-password with token shows password form', async ({ page, urls }) => {
-    const resetPassword = createResetPasswordPage(page, urls.portal);
+  test('reset-password with token shows password form', async ({ unauthedPage, urls }) => {
+    const resetPassword = createResetPasswordPage(unauthedPage, urls.portal);
     await resetPassword.goto('test-token');
     await expect(resetPassword.heading()).toBeVisible();
     await expect(resetPassword.newPasswordInput()).toBeVisible();
@@ -75,15 +76,11 @@ test.describe('portal — reset password', () => {
   });
 });
 
+// Authenticated tests use page fixture (client auth via portal-setup)
 test.describe('portal — project detail', () => {
-  test('projects list has clickable cards', async ({ page, urls }) => {
+  test('projects list loads', async ({ page, urls }) => {
     await page.goto(`${urls.portal}/projects`);
-    const detail = createPortalProjectDetailPage(page, urls.portal, SEED_PROJECT_ID);
-    const cards = detail.projectCards();
-    const count = await cards.count();
-    if (count > 0) {
-      await expect(cards.first()).toBeVisible();
-    }
+    await expect(page).toHaveURL(/projects/);
   });
 
   test('project detail page loads when authenticated', async ({ page, urls }) => {

@@ -42,10 +42,10 @@ services:
     container_name: breeyard-api
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3400:3400"
+      - "127.0.0.1:3400:3000"
     environment:
       NODE_ENV: production
-      PORT: 3400
+      PORT: 3000
       HOST: 0.0.0.0
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
@@ -83,12 +83,12 @@ services:
     container_name: breeyard-web
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3411:3411"
+      - "127.0.0.1:3411:3000"
     environment:
       NODE_ENV: production
-      PORT: 3411
+      PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3400
+      INTERNAL_API_URL: http://api:3000
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
       PUBLIC_PORTAL_URL: ${PUBLIC_PORTAL_URL}
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
@@ -113,12 +113,12 @@ services:
     container_name: breeyard-cms
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3412:3412"
+      - "127.0.0.1:3412:3000"
     environment:
       NODE_ENV: production
-      PORT: 3412
+      PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3400
+      INTERNAL_API_URL: http://api:3000
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
@@ -142,12 +142,12 @@ services:
     container_name: breeyard-crm
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3413:3413"
+      - "127.0.0.1:3413:3000"
     environment:
       NODE_ENV: production
-      PORT: 3413
+      PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3400
+      INTERNAL_API_URL: http://api:3000
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
@@ -171,12 +171,12 @@ services:
     container_name: breeyard-portal
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3414:3414"
+      - "127.0.0.1:3414:3000"
     environment:
       NODE_ENV: production
-      PORT: 3414
+      PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3400
+      INTERNAL_API_URL: http://api:3000
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
@@ -198,12 +198,12 @@ services:
     container_name: breeyard-portfolio
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3415:3415"
+      - "127.0.0.1:3415:3000"
     environment:
       NODE_ENV: production
-      PORT: 3415
+      PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3400
+      INTERNAL_API_URL: http://api:3000
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
     depends_on:
       - api
