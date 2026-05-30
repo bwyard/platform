@@ -1,19 +1,12 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import { MessageBubble } from '@breeyard/ui';
   import type { PageData, ActionData } from './$types';
 
   const { data, form }: { data: PageData; form: ActionData } = $props();
 
   let body = $state('');
   let threadEl: HTMLDivElement | undefined;
-
-  const formatTime = (iso: string) =>
-    new Date(iso).toLocaleString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    });
 
   $effect(() => {
     threadEl?.scrollTo({ top: threadEl.scrollHeight, behavior: 'smooth' });
@@ -55,23 +48,12 @@
       </div>
     {:else}
       {#each data.messages as message (message.id)}
-        <div
-          data-testid="message-item"
-          class="flex {message.fromClient ? 'justify-start' : 'justify-end'}"
-        >
-          <div class="max-w-lg space-y-1">
-            <p class="text-xs text-gray-400 {message.fromClient ? 'text-left' : 'text-right'}">
-              {message.fromClient ? data.client.name : 'You'} · {formatTime(message.createdAt)}
-            </p>
-            <div
-              class="rounded-2xl px-4 py-3 text-sm leading-relaxed {message.fromClient
-                ? 'rounded-tl-sm bg-gray-100 text-gray-900'
-                : 'rounded-tr-sm bg-gray-900 text-white'}"
-            >
-              <p class="whitespace-pre-wrap">{message.body}</p>
-            </div>
-          </div>
-        </div>
+        <MessageBubble
+          body={message.body}
+          sent={!message.fromClient}
+          senderLabel={message.fromClient ? data.client.name : 'You'}
+          timestamp={message.createdAt}
+        />
       {/each}
     {/if}
   </div>
