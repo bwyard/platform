@@ -1,7 +1,18 @@
-import { redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+// ============================================================
+// CRM / — dashboard
+// ============================================================
 
-export const load: PageServerLoad = () => {
-  // eslint-disable-next-line @typescript-eslint/only-throw-error
-  throw redirect(302, '/clients');
+import type { PageServerLoad } from './$types';
+import { apiFetch } from '$lib/server/api';
+import type { Client } from '@breeyard/shared';
+
+interface DashboardData {
+  counts: { total: number; prospect: number; active: number; inactive: number; churned: number };
+  unreadMessages: number;
+  recentClients: Client[];
+}
+
+export const load: PageServerLoad = async () => {
+  const dashboard = await apiFetch<DashboardData>('/v1/dashboard');
+  return { dashboard };
 };

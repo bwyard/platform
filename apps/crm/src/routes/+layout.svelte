@@ -8,6 +8,7 @@
   const isLoginPage = $derived($page.url.pathname === '/login');
 
   const nav = [
+    { href: '/', label: 'Dashboard' },
     { href: '/clients', label: 'Clients' },
     { href: '/projects', label: 'Projects' },
     { href: '/invoices', label: 'Invoices' },

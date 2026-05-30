@@ -100,7 +100,7 @@ jobs:
         run: pnpm --filter @breeyard/database db:migrate
 
       - name: Run tests
-        run: pnpm -r --if-present run test --run
+        run: pnpm vitest run
 
   e2e:
     name: E2E Tests
@@ -146,6 +146,8 @@ jobs:
       TRUSTED_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
       E2E_ADMIN_EMAIL: bree@8ofwands.com
       E2E_ADMIN_PASSWORD: orbittigerstone530
+      E2E_CLIENT_EMAIL: client@example.com
+      E2E_CLIENT_PASSWORD: blazecedarstone952
       SEED_ADMIN_EMAIL: bree@8ofwands.com
       SEED_ADMIN_PASSWORD: orbittigerstone530
       SEED_CLIENT_EMAIL: client@example.com
