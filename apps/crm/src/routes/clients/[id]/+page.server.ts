@@ -7,12 +7,12 @@ import type { PageServerLoad, Actions } from './$types';
 import { apiFetch } from '$lib/server/api';
 import type { Client, Project } from '@breeyard/shared';
 
-type ClientWithProjects = Client & { projects: Project[] };
+type ClientWithProjects = Client & { projects: Project[]; unreadCount: number };
 
 export const load: PageServerLoad = async ({ params }) => {
   try {
     const client = await apiFetch<ClientWithProjects>(`/v1/clients/${params.id}`);
-    return { client, projects: client.projects };
+    return { client, projects: client.projects, unreadCount: client.unreadCount };
   } catch {
     // eslint-disable-next-line @typescript-eslint/only-throw-error
     throw error(404, 'Client not found');
