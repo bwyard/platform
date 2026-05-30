@@ -39,12 +39,21 @@
             <p class="mt-1 text-gray-500">{data.client.company}</p>
           {/if}
         </div>
-        <span
-          class="rounded-full px-3 py-1 text-sm font-medium {statusColors[data.client.status] ??
-            ''}"
-        >
-          {data.client.status}
-        </span>
+        <div class="flex items-center gap-2">
+          <a
+            href="/clients/{data.client.id}/edit"
+            data-testid="edit-client-link"
+            class="rounded border px-3 py-1 text-sm font-medium hover:bg-gray-50"
+          >
+            Edit
+          </a>
+          <span
+            class="rounded-full px-3 py-1 text-sm font-medium {statusColors[data.client.status] ??
+              ''}"
+          >
+            {data.client.status}
+          </span>
+        </div>
       </div>
 
       <!-- Projects -->

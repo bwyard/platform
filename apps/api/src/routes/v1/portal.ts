@@ -3,10 +3,11 @@
 // Client-scoped: session cookie required, all data filtered to
 // the authenticated user's client record.
 //
-// GET /v1/portal/me           — client record for the logged-in user
-// GET /v1/portal/projects     — projects for the logged-in user's client
-// GET /v1/portal/messages     — messages for the logged-in user's client
-// POST /v1/portal/messages    — send a message from the client
+// GET  /v1/portal/me                — client record for the logged-in user
+// GET  /v1/portal/projects          — projects for the logged-in user's client
+// GET  /v1/portal/projects/:id      — single project (must belong to client)
+// GET  /v1/portal/messages          — messages for the logged-in user's client
+// POST /v1/portal/messages          — send a message from the client
 // ============================================================
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
@@ -62,6 +63,28 @@ export const portalRoutes = async (fastify: FastifyInstance): Promise<void> => {
       .orderBy(asc(projects.createdAt));
 
     return reply.send(apiSuccess(clientProjects));
+  });
+
+  // ---- GET /v1/portal/projects/:id ----
+  fastify.get<{ Params: { id: string } }>('/projects/:id', async (request, reply) => {
+    const userId = await requireClientSession(request, reply);
+    if (!userId) return;
+
+    const client = await getClientForUser(userId);
+    if (!client) return reply.status(404).send(apiError('NOT_FOUND', 'No client record found.'));
+
+    const db = getDatabase();
+    const [project] = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.id, request.params.id))
+      .limit(1);
+
+    if (project?.clientId !== client.id) {
+      return reply.status(404).send(apiError('NOT_FOUND', 'Project not found.'));
+    }
+
+    return reply.send(apiSuccess(project));
   });
 
   // ---- GET /v1/portal/messages ----

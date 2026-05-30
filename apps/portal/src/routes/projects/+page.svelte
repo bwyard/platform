@@ -24,7 +24,11 @@
   {:else}
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {#each data.projects as project (project.id)}
-        <div class="rounded-lg border bg-white p-5 shadow-sm">
+        <a
+          href="/projects/{project.id}"
+          data-testid="project-card"
+          class="block rounded-lg border bg-white p-5 shadow-sm hover:border-gray-400"
+        >
           <div class="mb-3 flex items-start justify-between">
             <h3 class="font-semibold">{project.name}</h3>
             <span
@@ -37,7 +41,7 @@
           {#if project.description}
             <p class="text-sm text-gray-500">{project.description}</p>
           {/if}
-        </div>
+        </a>
       {/each}
     </div>
   {/if}
