@@ -14,7 +14,9 @@ const test = base.extend<Fixtures>({
   // eslint-disable-next-line no-empty-pattern
   credentials: async ({}, use) => use(config.credentials),
   unauthedPage: async ({ browser }, use) => {
-    const ctx = await browser.newContext();
+    // Explicitly clear cookies — localhost cookies (domain: 'localhost') are shared
+    // across Chromium contexts, so we must explicitly zero them out.
+    const ctx = await browser.newContext({ storageState: { cookies: [], origins: [] } });
     const page = await ctx.newPage();
     await use(page);
     await ctx.close();

@@ -16,6 +16,7 @@ import { configRoutes } from './routes/v1/config.js';
 import { clientsRoutes } from './routes/v1/clients.js';
 import { projectsRoutes } from './routes/v1/projects.js';
 import { portalRoutes } from './routes/v1/portal.js';
+import { dashboardRoutes } from './routes/v1/dashboard.js';
 
 export const buildServer = async () => {
   const server = Fastify({
@@ -50,6 +51,7 @@ export const buildServer = async () => {
   await server.register(clientsRoutes, { prefix: '/v1/clients' });
   await server.register(projectsRoutes, { prefix: '/v1/projects' });
   await server.register(portalRoutes, { prefix: '/v1/portal' });
+  await server.register(dashboardRoutes, { prefix: '/v1/dashboard' });
 
   return server;
 };

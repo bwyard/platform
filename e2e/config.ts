@@ -14,6 +14,10 @@ export const config = {
       email: optional('E2E_ADMIN_EMAIL', 'bree@8ofwands.com'),
       password: optional('E2E_ADMIN_PASSWORD', ''),
     },
+    client: {
+      email: optional('E2E_CLIENT_EMAIL', 'client@example.com'),
+      password: optional('E2E_CLIENT_PASSWORD', 'changeme'),
+    },
   },
 } as const;
 
