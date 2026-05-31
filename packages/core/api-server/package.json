@@ -1,0 +1,38 @@
+{
+  "name": "@breeyard/api-server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@breeyard/auth": "workspace:*",
+    "@breeyard/config": "workspace:*",
+    "@breeyard/database": "workspace:*",
+    "@breeyard/errors": "workspace:*",
+    "@breeyard/logging": "workspace:*",
+    "@breeyard/mail": "workspace:*",
+    "@breeyard/shared": "workspace:*",
+    "@breeyard/validation": "workspace:*",
+    "@trpc/server": "11.17.0",
+    "drizzle-orm": "0.45.2",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@breeyard/test-utils": "workspace:*",
+    "@types/node": "24.12.4",
+    "typescript": "6.0.3",
+    "vitest": "4.1.7"
+  }
+}

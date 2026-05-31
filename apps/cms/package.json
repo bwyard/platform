@@ -14,8 +14,10 @@
   },
   "dependencies": {
     "@breeyard/analytics": "workspace:*",
+    "@breeyard/api-server": "workspace:*",
     "@breeyard/audit": "workspace:*",
     "@breeyard/auth": "workspace:*",
+    "@breeyard/security": "workspace:*",
     "@breeyard/shared": "workspace:*",
     "@breeyard/theme": "workspace:*",
     "@breeyard/ui": "workspace:*",

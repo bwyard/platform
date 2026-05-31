@@ -3,16 +3,10 @@
 // ============================================================
 
 import type { PageServerLoad } from './$types';
-import { apiFetch } from '$lib/server/api';
-import type { Client } from '@breeyard/shared';
+import { createCaller } from '$lib/server/api';
 
-interface DashboardData {
-  counts: { total: number; prospect: number; active: number; inactive: number; churned: number };
-  unreadMessages: number;
-  recentClients: Client[];
-}
-
-export const load: PageServerLoad = async () => {
-  const dashboard = await apiFetch<DashboardData>('/v1/dashboard');
+export const load: PageServerLoad = async ({ request }) => {
+  const caller = await createCaller(request);
+  const dashboard = await caller.dashboard.stats();
   return { dashboard };
 };
