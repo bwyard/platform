@@ -29,16 +29,6 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-
     env:
       DATABASE_URL: postgresql://breeyard:breeyard@localhost:5432/breeyard
       BETTER_AUTH_SECRET: e2e-test-secret-minimum-32-chars-placeholder
@@ -47,7 +37,6 @@ jobs:
       PUBLIC_API_URL: http://localhost:3010
       PUBLIC_PORTAL_URL: http://localhost:3014
       INTERNAL_API_URL: http://localhost:3010
-      REDIS_URL: redis://localhost:6379
       CORS_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
       TRUSTED_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
       E2E_ADMIN_EMAIL: bree@8ofwands.com
@@ -85,7 +74,6 @@ jobs:
           PUBLIC_API_URL=http://localhost:3010
           PUBLIC_PORTAL_URL=http://localhost:3014
           INTERNAL_API_URL=http://localhost:3010
-          REDIS_URL=redis://localhost:6379
           CORS_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
           TRUSTED_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
           SEED_ADMIN_EMAIL=bree@8ofwands.com

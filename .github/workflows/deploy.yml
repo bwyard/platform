@@ -52,7 +52,7 @@ jobs:
             $COMPOSE build --no-cache api web cms crm portal portfolio
 
             # Start infra first
-            $COMPOSE up -d --no-build postgres redis
+            $COMPOSE up -d --no-build postgres
 
             # Wait for postgres to accept connections before migrating
             NETWORK="breeyard_internal"

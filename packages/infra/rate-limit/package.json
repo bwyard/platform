@@ -15,9 +15,7 @@
     "lint": "eslint src",
     "test": "vitest"
   },
-  "dependencies": {
-    "ioredis": "^5.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "typescript": "6.0.3"
   }
