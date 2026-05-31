@@ -25,21 +25,6 @@ services:
       timeout: 5s
       retries: 10
 
-  redis:
-    image: redis:7-alpine
-    container_name: breeyard-staging-redis
-    restart: "no"
-    command: redis-server --requirepass ${REDIS_PASSWORD:?required}
-    volumes:
-      - redis_staging_data:/data
-    networks:
-      - staging_internal
-    healthcheck:
-      test: ["CMD", "redis-cli", "--pass", "${REDIS_PASSWORD}", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
   api:
     build:
       context: ../..
@@ -54,7 +39,6 @@ services:
       PORT: 3000
       HOST: 0.0.0.0
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
       COOKIE_DOMAIN: ${COOKIE_DOMAIN}
@@ -72,8 +56,6 @@ services:
       STORAGE_BUCKET: ${STORAGE_BUCKET}
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     networks:
       - staging_internal
@@ -222,4 +204,3 @@ networks:
 
 volumes:
   postgres_staging_data:
-  redis_staging_data:
