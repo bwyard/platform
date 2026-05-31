@@ -25,41 +25,6 @@ services:
       timeout: 5s
       retries: 10
 
-  api:
-    build:
-      context: ../..
-      dockerfile: apps/api/Dockerfile
-    image: breeyard-staging-api
-    container_name: breeyard-staging-api
-    restart: "no"
-    ports:
-      - "127.0.0.1:4400:3000"
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-      HOST: 0.0.0.0
-      DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
-      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
-      TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
-      CORS_ORIGINS: ${CORS_ORIGINS}
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASS: ${SMTP_PASS}
-      MAIL_FROM: ${MAIL_FROM}
-      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT}
-      STORAGE_REGION: ${STORAGE_REGION}
-      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
-      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
-      STORAGE_BUCKET: ${STORAGE_BUCKET}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - staging_internal
-
   web:
     build:
       context: ../..
@@ -76,7 +41,6 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3000
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
       PUBLIC_PORTAL_URL: ${PUBLIC_PORTAL_URL}
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
@@ -86,8 +50,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      api:
-        condition: service_started
     networks:
       - staging_internal
 
@@ -106,7 +68,6 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3000
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
@@ -115,8 +76,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      api:
-        condition: service_started
     networks:
       - staging_internal
 
@@ -135,7 +94,6 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3000
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
@@ -144,8 +102,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      api:
-        condition: service_started
     networks:
       - staging_internal
 
@@ -164,7 +120,6 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3000
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
@@ -173,8 +128,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      api:
-        condition: service_started
     networks:
       - staging_internal
 
@@ -191,10 +144,10 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3000
       PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
     depends_on:
-      - api
+      postgres:
+        condition: service_healthy
     networks:
       - staging_internal
 
