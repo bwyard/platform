@@ -22,7 +22,7 @@ export const authRoutes = (fastify: FastifyInstance): void => {
     // better-auth's writeHead call (Node.js merges setHeader() with writeHead() headers).
     for (const [key, value] of Object.entries(reply.getHeaders())) {
       if (value !== undefined) {
-        reply.raw.setHeader(key, value as string | number | readonly string[]);
+        reply.raw.setHeader(key, value);
       }
     }
     void handler(_request.raw, reply.raw);
