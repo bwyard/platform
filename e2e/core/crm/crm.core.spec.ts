@@ -1,6 +1,7 @@
 import { test, expect } from '../../fixtures';
 import { crmApp } from '../../poms/crm';
 import { loginAs } from '../../helpers/auth';
+import { config } from '../../config';
 
 const SEED_CLIENT_ID = 'client-example';
 const SEED_PROJECT_ID = 'project-example';
