@@ -58,13 +58,11 @@ jobs:
 
       - name: Typecheck
         env:
-          PUBLIC_API_URL: https://api.8ofwands.com
           PUBLIC_PORTAL_URL: https://portal.8ofwands.com
         run: pnpm -r --if-present run typecheck
 
       - name: Lint
         env:
-          PUBLIC_API_URL: https://api.8ofwands.com
           PUBLIC_PORTAL_URL: https://portal.8ofwands.com
         run: pnpm -r --if-present run lint
 
@@ -91,7 +89,6 @@ jobs:
     env:
       DATABASE_URL: postgresql://breeyard:breeyard@localhost:5432/breeyard
       BETTER_AUTH_SECRET: ci-test-secret-minimum-32-chars-placeholder
-      BETTER_AUTH_URL: http://localhost:3010
       TRUSTED_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
       CORS_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
 
@@ -142,17 +139,15 @@ jobs:
     env:
       DATABASE_URL: postgresql://breeyard:breeyard@localhost:5432/breeyard
       BETTER_AUTH_SECRET: e2e-test-secret-minimum-32-chars-placeholder
-      BETTER_AUTH_URL: http://localhost:3010
+      # BETTER_AUTH_URL is set per-app via webServer[n].env in playwright.config.ts
       BETTER_AUTH_TRUSTED_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
-      PUBLIC_API_URL: http://localhost:3010
       PUBLIC_PORTAL_URL: http://localhost:3014
-      INTERNAL_API_URL: http://localhost:3010
       CORS_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
       TRUSTED_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
-      E2E_ADMIN_EMAIL: bree@8ofwands.com
-      E2E_ADMIN_PASSWORD: ${{ secrets.SEED_ADMIN_PASSWORD }}
-      E2E_CLIENT_EMAIL: client@example.com
-      E2E_CLIENT_PASSWORD: ${{ secrets.SEED_CLIENT_PASSWORD }}
+      E2E_ADMIN_1_EMAIL: bree@8ofwands.com
+      E2E_ADMIN_1_PASSWORD: ${{ secrets.SEED_ADMIN_PASSWORD }}
+      E2E_CLIENT_1_EMAIL: client@example.com
+      E2E_CLIENT_1_PASSWORD: ${{ secrets.SEED_CLIENT_PASSWORD }}
       SEED_ADMIN_EMAIL: bree@8ofwands.com
       SEED_ADMIN_PASSWORD: ${{ secrets.SEED_ADMIN_PASSWORD }}
       SEED_CLIENT_EMAIL: client@example.com
@@ -179,11 +174,8 @@ jobs:
           cat > .env << EOF
           DATABASE_URL=postgresql://breeyard:breeyard@localhost:5432/breeyard
           BETTER_AUTH_SECRET=e2e-test-secret-minimum-32-chars-placeholder
-          BETTER_AUTH_URL=http://localhost:3010
           BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
-          PUBLIC_API_URL=http://localhost:3010
           PUBLIC_PORTAL_URL=http://localhost:3014
-          INTERNAL_API_URL=http://localhost:3010
           CORS_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
           TRUSTED_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
           SEED_ADMIN_EMAIL=bree@8ofwands.com

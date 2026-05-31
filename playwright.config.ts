@@ -3,15 +3,14 @@ import { defineConfig, devices } from '@playwright/test';
 // =============================================================================
 // Playwright E2E config — bwyard/platform
 //
-// Strategy: E2E covers critical user journeys only.
-// Don't duplicate integration-level assertions here.
+// Architecture: see e2e/ARCHITECTURE.md
 //
-// Auth pattern:
-//   'setup' logs in once → saves to e2e/.auth/admin.json
-//   Authed test projects depend on 'setup' and reuse that state.
+// Projects are scoped by auth context, not by app.
+// Each project's testMatch covers all tier dirs (smokes/core/features) for that app.
+// Flows get their own project — no storageState, tests create their own contexts.
 //
 // Ports (non-conflicting with artist-platform which uses 3001-3004, 4000):
-//   api=3010  web=3011  cms=3012  crm=3013  portal=3014  portfolio=3015
+//   web=3011  cms=3012  crm=3013  portal=3014  portfolio=3015
 // =============================================================================
 
 export default defineConfig({
@@ -19,8 +18,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  // 2 workers everywhere — matches CI (2 vCPUs) and keeps dev servers stable.
-  // More workers causes context-setup timeouts on auth guard tests.
+  // 2 workers — matches CI (2 vCPUs) and keeps dev servers stable.
   workers: 2,
   reporter: process.env.CI ? 'github' : 'html',
 
@@ -30,62 +28,87 @@ export default defineConfig({
   },
 
   projects: [
-    // 1a. Admin login — CRM + CMS
+    // 1. Setup — runs first, creates auth state files for all users in USERS registry
     {
       name: 'setup',
-      testMatch: /admin\.setup\.ts/,
+      testMatch: /setup\/auth\.setup\.ts/,
     },
-    // 1b. Portal client login
+
+    // 2. CRM — admin auth, covers all crm tiers
     {
-      name: 'portal-setup',
-      testMatch: /portal\.setup\.ts/,
-    },
-    // 2. CMS — authed
-    {
-      name: 'cms-chromium',
+      name: 'crm',
       use: {
         ...devices['Desktop Chrome'],
-        storageState: 'e2e/.auth/admin.json',
+        storageState: 'e2e/.auth/admin-1.json',
       },
       dependencies: ['setup'],
-      testMatch: /cms\.spec\.ts/,
+      testMatch: [
+        'e2e/smokes/crm/**/*.spec.ts',
+        'e2e/core/crm/**/*.spec.ts',
+        'e2e/features/crm/**/*.spec.ts',
+      ],
     },
-    // 3. CRM — authed
+
+    // 3. CMS — admin auth, covers all cms tiers
     {
-      name: 'crm-chromium',
+      name: 'cms',
       use: {
         ...devices['Desktop Chrome'],
-        storageState: 'e2e/.auth/admin.json',
+        storageState: 'e2e/.auth/admin-1.json',
       },
       dependencies: ['setup'],
-      testMatch: /crm\.spec\.ts/,
+      testMatch: [
+        'e2e/smokes/cms/**/*.spec.ts',
+        'e2e/core/cms/**/*.spec.ts',
+        'e2e/features/cms/**/*.spec.ts',
+      ],
     },
-    // 4. Web — public
+
+    // 4. Portal — client auth, covers all portal tiers
     {
-      name: 'web-chromium',
+      name: 'portal',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'e2e/.auth/client-1.json',
+      },
+      dependencies: ['setup'],
+      testMatch: [
+        'e2e/smokes/portal/**/*.spec.ts',
+        'e2e/core/portal/**/*.spec.ts',
+        'e2e/features/portal/**/*.spec.ts',
+      ],
+    },
+
+    // 5. Web — public, desktop + mobile smokes
+    {
+      name: 'web',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: /web\.spec\.ts/,
+      testMatch: [
+        'e2e/smokes/web/**/*.spec.ts',
+        'e2e/core/web/**/*.spec.ts',
+        'e2e/features/web/**/*.spec.ts',
+      ],
     },
     {
       name: 'web-mobile',
       use: { ...devices['iPhone 14'] },
-      testMatch: /web\.spec\.ts/,
+      testMatch: ['e2e/smokes/web/**/*.spec.ts'],
     },
-    // 5. Portal — public + authed flows (client auth)
-    {
-      name: 'portal-chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'e2e/.auth/portal-client.json',
-      },
-      dependencies: ['portal-setup'],
-      testMatch: /portal\.spec\.ts/,
-    },
+
     // 6. Portfolio — public
     {
-      name: 'portfolio-chromium',
+      name: 'portfolio',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: /portfolio\.spec\.ts/,
+      testMatch: ['e2e/smokes/portfolio/**/*.spec.ts', 'e2e/core/portfolio/**/*.spec.ts'],
+    },
+
+    // 7. Flows — cross-app journeys, no storageState
+    // Tests create their own browser contexts per user alias
+    {
+      name: 'flows',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
+      testMatch: ['e2e/flows/**/*.spec.ts'],
     },
   ],
 
@@ -96,6 +119,7 @@ export default defineConfig({
           name: 'web',
           command: 'pnpm --filter @breeyard/web dev',
           url: 'http://localhost:3011',
+          env: { BETTER_AUTH_URL: 'http://localhost:3011' },
           reuseExistingServer: true,
           timeout: 60_000,
         },
@@ -103,6 +127,7 @@ export default defineConfig({
           name: 'cms',
           command: 'pnpm --filter @breeyard/cms dev',
           url: 'http://localhost:3012/login',
+          env: { BETTER_AUTH_URL: 'http://localhost:3012' },
           reuseExistingServer: true,
           timeout: 60_000,
         },
@@ -110,6 +135,7 @@ export default defineConfig({
           name: 'crm',
           command: 'pnpm --filter @breeyard/crm dev',
           url: 'http://localhost:3013/login',
+          env: { BETTER_AUTH_URL: 'http://localhost:3013' },
           reuseExistingServer: true,
           timeout: 60_000,
         },
@@ -117,6 +143,7 @@ export default defineConfig({
           name: 'portal',
           command: 'pnpm --filter @breeyard/portal dev',
           url: 'http://localhost:3014/login',
+          env: { BETTER_AUTH_URL: 'http://localhost:3014' },
           reuseExistingServer: true,
           timeout: 60_000,
         },
