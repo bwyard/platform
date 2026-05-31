@@ -3,18 +3,16 @@
 // ============================================================
 
 import type { PageServerLoad } from './$types';
-import { apiFetch } from '$lib/server/api';
-import type { Client, Project } from '@breeyard/shared';
+import { createCaller } from '$lib/server/api';
 
 export const load: PageServerLoad = async ({ parent, request }) => {
   const { user } = await parent();
   if (!user) return { client: null, projects: [] };
 
-  const cookie = request.headers.get('cookie') ?? '';
-
+  const caller = await createCaller(request);
   const [client, projects] = await Promise.all([
-    apiFetch<Client>('/v1/portal/me', { cookie }).catch(() => null),
-    apiFetch<Project[]>('/v1/portal/projects', { cookie }).catch(() => []),
+    caller.portal.me().catch(() => null),
+    caller.portal.projects().catch(() => []),
   ]);
 
   return { client, projects };

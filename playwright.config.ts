@@ -18,7 +18,7 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 1 : 0,
   // 2 workers everywhere — matches CI (2 vCPUs) and keeps dev servers stable.
   // More workers causes context-setup timeouts on auth guard tests.
   workers: 2,

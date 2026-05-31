@@ -1,15 +1,15 @@
 // ============================================================
-// CRM /clients/[id]/edit — edit client details
+// CRM /clients/[id]/edit
 // ============================================================
 
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { apiFetch } from '$lib/server/api';
-import type { Client } from '@breeyard/shared';
+import { createCaller } from '$lib/server/api';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, request }) => {
   try {
-    const client = await apiFetch<Client>(`/v1/clients/${params.id}`);
+    const caller = await createCaller(request);
+    const client = await caller.clients.get({ id: params.id });
     return { client };
   } catch {
     // eslint-disable-next-line @typescript-eslint/only-throw-error
@@ -20,43 +20,38 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions: Actions = {
   update: async ({ params, request }) => {
     const form = await request.formData();
-
     const name = (form.get('name') as string | null)?.trim() ?? '';
     const email = (form.get('email') as string | null)?.trim() ?? '';
-
     if (!name || !email) return fail(400, { error: 'Name and email are required.' });
-
     try {
-      await apiFetch(`/v1/clients/${params.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-          name,
-          email,
-          company: (form.get('company') as string | null)?.trim() ?? null,
-          phone: (form.get('phone') as string | null)?.trim() ?? null,
-          techLevel: form.get('techLevel') as string,
-          status: form.get('status') as string,
-          notes: (form.get('notes') as string | null)?.trim() ?? null,
-        }),
+      const caller = await createCaller(request);
+      await caller.clients.update({
+        id: params.id,
+        name,
+        email,
+        company: (form.get('company') as string | null)?.trim() ?? null,
+        phone: (form.get('phone') as string | null)?.trim() ?? null,
+        techLevel: form.get('techLevel') as 'low' | 'medium' | 'high',
+        status: form.get('status') as 'prospect' | 'active' | 'inactive' | 'churned',
+        notes: (form.get('notes') as string | null)?.trim() ?? null,
       });
       // eslint-disable-next-line @typescript-eslint/only-throw-error
-      throw redirect(302, `/clients/${params.id}`);
+      throw redirect(302, '/clients/' + params.id);
     } catch (err) {
       if (err instanceof Response || (err as { status?: number }).status === 302) throw err;
-      const message = err instanceof Error ? err.message : 'Failed to update client.';
-      return fail(500, { error: message });
+      return fail(500, { error: err instanceof Error ? err.message : 'Failed to update client.' });
     }
   },
 
-  archive: async ({ params }) => {
+  archive: async ({ params, request }) => {
     try {
-      await apiFetch(`/v1/clients/${params.id}`, { method: 'DELETE' });
+      const caller = await createCaller(request);
+      await caller.clients.archive({ id: params.id });
       // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw redirect(302, '/clients');
     } catch (err) {
       if (err instanceof Response || (err as { status?: number }).status === 302) throw err;
-      const message = err instanceof Error ? err.message : 'Failed to archive client.';
-      return fail(500, { error: message });
+      return fail(500, { error: err instanceof Error ? err.message : 'Failed to archive client.' });
     }
   },
 };

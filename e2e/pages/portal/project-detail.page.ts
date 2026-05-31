@@ -1,9 +1,10 @@
-import type { Page } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
-export const createPortalProjectDetailPage = (page: Page, baseUrl: string, projectId: string) => {
-  const goto = () => page.goto(`${baseUrl}/projects/${projectId}`);
-  const heading = () => page.getByTestId('project-name');
-  const projectCards = () => page.getByTestId('project-card');
+export const portalProjectDetailPage = (page: Page) => ({
+  goto: (baseUrl: string, projectId: string): Promise<void> =>
+    page.goto(`${baseUrl}/projects/${projectId}`).then(() => undefined),
+  heading: (): Locator => page.getByTestId('project-name'),
+  projectCards: (): Locator => page.getByTestId('project-card'),
+});
 
-  return { goto, heading, projectCards };
-};
+export type PortalProjectDetailPage = ReturnType<typeof portalProjectDetailPage>;

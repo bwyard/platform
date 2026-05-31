@@ -1,36 +1,11 @@
 // ============================================================
-// Portal API client — internal fetch to @breeyard/api
-// All server-side data access goes through here, not the DB.
+// Portal server-side tRPC caller
+// Direct procedure calls — no HTTP round trip for SSR
 // ============================================================
 
-import type { ApiResponse } from '@breeyard/shared';
+import { appRouter, createContextFromRequest } from '@breeyard/api-server';
 
-const API_URL = process.env.INTERNAL_API_URL;
-
-export const apiFetch = async <T>(
-  path: string,
-  options: Omit<RequestInit, 'headers'> & {
-    headers?: Record<string, string>;
-    cookie?: string;
-  } = {},
-): Promise<T> => {
-  const { headers = {}, cookie, ...rest } = options;
-
-  if (!API_URL) throw new Error('INTERNAL_API_URL is not set');
-  const response = await fetch(`${API_URL}${path}`, {
-    ...rest,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(cookie ? { Cookie: cookie } : {}),
-      ...headers,
-    },
-  });
-
-  const json = (await response.json()) as ApiResponse<T>;
-
-  if (!json.success) {
-    throw new Error(json.error.message);
-  }
-
-  return json.data;
+export const createCaller = async (request: Request) => {
+  const ctx = await createContextFromRequest(request);
+  return appRouter.createCaller(ctx);
 };

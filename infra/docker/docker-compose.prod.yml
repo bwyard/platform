@@ -2,7 +2,7 @@ name: breeyard
 
 services:
   postgres:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     container_name: breeyard-postgres
     restart: unless-stopped
     environment:
@@ -19,41 +19,49 @@ services:
       timeout: 5s
       retries: 10
 
-  redis:
-    image: redis:7-alpine
-    container_name: breeyard-redis
-    restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD:?required}
-    volumes:
-      - redis_data:/data
-    networks:
-      - internal
-    healthcheck:
-      test: ["CMD", "redis-cli", "--pass", "${REDIS_PASSWORD}", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  api:
+  web:
     build:
       context: ../..
-      dockerfile: apps/api/Dockerfile
-    image: breeyard-api
-    container_name: breeyard-api
+      dockerfile: apps/web/Dockerfile
+      args:
+        PUBLIC_PORTAL_URL: ${PUBLIC_PORTAL_URL}
+    image: breeyard-web
+    container_name: breeyard-web
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3400:3000"
+      - "127.0.0.1:3411:3000"
     environment:
       NODE_ENV: production
       PORT: 3000
       HOST: 0.0.0.0
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
       COOKIE_DOMAIN: ${COOKIE_DOMAIN}
-      TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
-      CORS_ORIGINS: ${CORS_ORIGINS}
+      PUBLIC_PORTAL_URL: ${PUBLIC_PORTAL_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
+
+  cms:
+    build:
+      context: ../..
+      dockerfile: apps/cms/Dockerfile
+    image: breeyard-cms
+    container_name: breeyard-cms
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3412:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
       SMTP_USER: ${SMTP_USER}
@@ -67,68 +75,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - internal
-
-  web:
-    build:
-      context: ../..
-      dockerfile: apps/web/Dockerfile
-      args:
-        PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
-        PUBLIC_PORTAL_URL: ${PUBLIC_PORTAL_URL}
-    image: breeyard-web
-    container_name: breeyard-web
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:3411:3000"
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-      HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3000
-      PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
-      PUBLIC_PORTAL_URL: ${PUBLIC_PORTAL_URL}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
-      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      api:
-        condition: service_started
-    networks:
-      - internal
-
-  cms:
-    build:
-      context: ../..
-      dockerfile: apps/cms/Dockerfile
-      args:
-        PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
-    image: breeyard-cms
-    container_name: breeyard-cms
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:3412:3000"
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-      HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3000
-      PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
-      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      api:
-        condition: service_started
     networks:
       - internal
 
@@ -136,8 +82,6 @@ services:
     build:
       context: ../..
       dockerfile: apps/crm/Dockerfile
-      args:
-        PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
     image: breeyard-crm
     container_name: breeyard-crm
     restart: unless-stopped
@@ -147,17 +91,19 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3000
-      PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
       COOKIE_DOMAIN: ${COOKIE_DOMAIN}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      MAIL_FROM: ${MAIL_FROM}
+      PORTAL_URL: ${PUBLIC_PORTAL_URL}
     depends_on:
       postgres:
         condition: service_healthy
-      api:
-        condition: service_started
     networks:
       - internal
 
@@ -165,8 +111,6 @@ services:
     build:
       context: ../..
       dockerfile: apps/portal/Dockerfile
-      args:
-        PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
     image: breeyard-portal
     container_name: breeyard-portal
     restart: unless-stopped
@@ -176,8 +120,6 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3000
-      PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
       DATABASE_URL: postgresql://${POSTGRES_USER:-breeyard}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-breeyard}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?required}
@@ -185,8 +127,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      api:
-        condition: service_started
     networks:
       - internal
 
@@ -203,10 +143,9 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOST: 0.0.0.0
-      INTERNAL_API_URL: http://api:3000
-      PUBLIC_API_URL: ${PUBLIC_API_URL:?required}
     depends_on:
-      - api
+      postgres:
+        condition: service_healthy
     networks:
       - internal
 
@@ -216,4 +155,3 @@ networks:
 
 volumes:
   postgres_data:
-  redis_data:

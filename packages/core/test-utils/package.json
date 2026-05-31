@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./msw": {
+      "types": "./dist/msw/index.d.ts",
+      "default": "./dist/msw/index.js"
     }
   },
   "scripts": {
@@ -16,10 +20,18 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@faker-js/faker": "^10.4.0",
-    "vitest": "^3.2.0"
+    "@faker-js/faker": "10.4.0",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/svelte": "5.3.1",
+    "axe-core": "4.11.4",
+    "happy-dom": "^20.8.9",
+    "msw": "2.14.6",
+    "vitest": "4.1.7",
+    "vitest-axe": "0.1.0"
   },
   "devDependencies": {
-    "typescript": "^5.8.0"
+    "@testcontainers/postgresql": "11.13.0",
+    "@types/node": "24.12.4",
+    "typescript": "6.0.3"
   }
 }

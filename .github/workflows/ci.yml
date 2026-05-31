@@ -10,19 +10,44 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  fast:
+    name: Fast Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit
+        run: pnpm audit --audit-level=high --prod
+
+      - name: Format check
+        run: pnpm format:check
+
   check:
     name: Typecheck + Lint
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs: [fast]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -47,10 +72,11 @@ jobs:
     name: Unit + Integration Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs: [fast]
 
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_USER: breeyard
           POSTGRES_PASSWORD: breeyard
@@ -81,13 +107,13 @@ jobs:
       CORS_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -106,12 +132,13 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    needs: [test]
     # E2E only on PRs to main — too slow for every dev branch
     if: github.base_ref == 'main'
 
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_USER: breeyard
           POSTGRES_PASSWORD: breeyard
@@ -154,13 +181,13 @@ jobs:
       SEED_CLIENT_PASSWORD: ${{ secrets.SEED_CLIENT_PASSWORD }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -202,7 +229,7 @@ jobs:
 
       - name: Upload Playwright report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: playwright-report/

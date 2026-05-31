@@ -10,123 +10,18 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  e2e:
-    name: E2E Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: breeyard
-          POSTGRES_PASSWORD: breeyard
-          POSTGRES_DB: breeyard
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-
-    env:
-      DATABASE_URL: postgresql://breeyard:breeyard@localhost:5432/breeyard
-      BETTER_AUTH_SECRET: e2e-test-secret-minimum-32-chars-placeholder
-      BETTER_AUTH_URL: http://localhost:3010
-      BETTER_AUTH_TRUSTED_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
-      PUBLIC_API_URL: http://localhost:3010
-      PUBLIC_PORTAL_URL: http://localhost:3014
-      INTERNAL_API_URL: http://localhost:3010
-      REDIS_URL: redis://localhost:6379
-      CORS_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
-      TRUSTED_ORIGINS: http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
-      E2E_ADMIN_EMAIL: bree@8ofwands.com
-      E2E_ADMIN_PASSWORD: ${{ secrets.SEED_ADMIN_PASSWORD }}
-      E2E_CLIENT_EMAIL: client@example.com
-      E2E_CLIENT_PASSWORD: ${{ secrets.SEED_CLIENT_PASSWORD }}
-      SEED_ADMIN_EMAIL: bree@8ofwands.com
-      SEED_ADMIN_PASSWORD: ${{ secrets.SEED_ADMIN_PASSWORD }}
-      SEED_CLIENT_EMAIL: client@example.com
-      SEED_CLIENT_PASSWORD: ${{ secrets.SEED_CLIENT_PASSWORD }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build packages
-        run: pnpm --filter './packages/**' run build
-
-      - name: Write .env for dev scripts
-        run: |
-          cat > .env << EOF
-          DATABASE_URL=postgresql://breeyard:breeyard@localhost:5432/breeyard
-          BETTER_AUTH_SECRET=e2e-test-secret-minimum-32-chars-placeholder
-          BETTER_AUTH_URL=http://localhost:3010
-          BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
-          PUBLIC_API_URL=http://localhost:3010
-          PUBLIC_PORTAL_URL=http://localhost:3014
-          INTERNAL_API_URL=http://localhost:3010
-          REDIS_URL=redis://localhost:6379
-          CORS_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
-          TRUSTED_ORIGINS=http://localhost:3011,http://localhost:3012,http://localhost:3013,http://localhost:3014,http://localhost:3015
-          SEED_ADMIN_EMAIL=bree@8ofwands.com
-          SEED_ADMIN_PASSWORD=${SEED_ADMIN_PASSWORD}
-          SEED_CLIENT_EMAIL=client@example.com
-          SEED_CLIENT_PASSWORD=${SEED_CLIENT_PASSWORD}
-          EOF
-
-      - name: Run migrations
-        run: pnpm --filter @breeyard/database db:migrate
-
-      - name: Seed test data
-        run: node packages/core/database/dist/seed.js
-
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium webkit
-
-      - name: Run E2E tests
-        run: pnpm test:e2e
-
-      - name: Upload Playwright report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
-
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [e2e]
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Pre-deploy health check
         run: |
-          curl --fail --silent --max-time 10 http://${{ secrets.DEPLOY_HOST }}:3400/health \
+          curl --fail --silent --max-time 10 http://${{ secrets.DEPLOY_HOST }}:3411/api/health \
             || echo "::warning::Pre-deploy health check failed — API may already be down"
 
       - name: Deploy via SSH
@@ -221,7 +116,7 @@ jobs:
             # Health check
             sleep 10
             HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
-              --max-time 15 http://localhost:3400/health || echo "000")
+              --max-time 15 http://localhost:3411/api/health || echo "000")
 
             if [ "$HTTP_STATUS" != "200" ]; then
               echo "ERROR: Health check failed (HTTP $HTTP_STATUS). Rolling back..."
@@ -244,7 +139,7 @@ jobs:
         run: |
           sleep 5
           HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
-            --max-time 15 http://${{ secrets.DEPLOY_HOST }}:3400/health || echo "000")
+            --max-time 15 http://${{ secrets.DEPLOY_HOST }}:3411/api/health || echo "000")
           if [ "$HTTP_STATUS" == "000" ]; then
             echo "::error::External health check failed — API unreachable"
             exit 1

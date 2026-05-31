@@ -1,30 +1,20 @@
-import type { Page } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
-export const createMessagesPage = (page: Page, baseUrl: string, clientId: string) => {
-  const goto = () => page.goto(`${baseUrl}/clients/${clientId}/messages`);
-  const heading = () => page.getByRole('heading', { name: /messages/i });
-  const thread = () => page.getByTestId('message-thread');
-  const messageItems = () => page.getByTestId('message-item');
-  const replyInput = () => page.getByTestId('reply-input');
-  const sendButton = () => page.getByTestId('reply-submit');
-  const emptyState = () => page.getByTestId('messages-empty');
-  const messagesLink = () => page.getByTestId('messages-link');
+export const messagesPage = (page: Page) => ({
+  goto: (baseUrl: string, clientId: string): Promise<void> =>
+    page.goto(`${baseUrl}/clients/${clientId}/messages`).then(() => undefined),
+  heading: (): Locator => page.getByRole('heading', { name: /messages/i }),
+  thread: (): Locator => page.getByTestId('message-thread'),
+  messageItems: (): Locator => page.getByTestId('message-item'),
+  replyInput: (): Locator => page.getByTestId('reply-input'),
+  sendButton: (): Locator => page.getByTestId('reply-submit'),
+  emptyState: (): Locator => page.getByTestId('messages-empty'),
+  messagesLink: (): Locator => page.getByTestId('messages-link'),
+  sendReply: async (text: string): Promise<void> => {
+    await page.getByTestId('reply-input').waitFor({ state: 'visible' });
+    await page.getByTestId('reply-input').fill(text);
+    await page.getByTestId('reply-submit').click();
+  },
+});
 
-  const sendReply = async (text: string) => {
-    await replyInput().waitFor({ state: 'visible' });
-    await replyInput().fill(text);
-    await sendButton().click();
-  };
-
-  return {
-    goto,
-    heading,
-    thread,
-    messageItems,
-    replyInput,
-    sendButton,
-    emptyState,
-    messagesLink,
-    sendReply,
-  };
-};
+export type MessagesPage = ReturnType<typeof messagesPage>;

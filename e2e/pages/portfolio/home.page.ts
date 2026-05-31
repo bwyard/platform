@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 
-export const createPortfolioHomePage = (page: Page, baseUrl: string) => {
-  const goto = () => page.goto(baseUrl);
+export const portfolioHomePage = (page: Page) => ({
+  goto: (baseUrl: string): Promise<void> => page.goto(baseUrl).then(() => undefined),
+});
 
-  return { goto };
-};
+export type PortfolioHomePage = ReturnType<typeof portfolioHomePage>;

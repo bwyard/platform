@@ -1,23 +1,15 @@
-import type { Page } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
-export const createClientEditPage = (page: Page, baseUrl: string, clientId: string) => {
-  const goto = () => page.goto(`${baseUrl}/clients/${clientId}/edit`);
-  const nameInput = () => page.getByTestId('edit-name');
-  const emailInput = () => page.getByTestId('edit-email');
-  const statusSelect = () => page.getByTestId('edit-status');
-  const saveButton = () => page.getByTestId('save-client');
-  const archiveTrigger = () => page.getByTestId('archive-trigger');
-  const archiveConfirm = () => page.getByTestId('archive-confirm');
-  const editLink = () => page.getByTestId('edit-client-link');
+export const clientEditPage = (page: Page) => ({
+  goto: (baseUrl: string, clientId: string): Promise<void> =>
+    page.goto(`${baseUrl}/clients/${clientId}/edit`).then(() => undefined),
+  nameInput: (): Locator => page.getByTestId('edit-name'),
+  emailInput: (): Locator => page.getByTestId('edit-email'),
+  statusSelect: (): Locator => page.getByTestId('edit-status'),
+  saveButton: (): Locator => page.getByTestId('save-client'),
+  archiveTrigger: (): Locator => page.getByTestId('archive-trigger'),
+  archiveConfirm: (): Locator => page.getByTestId('archive-confirm'),
+  editLink: (): Locator => page.getByTestId('edit-client-link'),
+});
 
-  return {
-    goto,
-    nameInput,
-    emailInput,
-    statusSelect,
-    saveButton,
-    archiveTrigger,
-    archiveConfirm,
-    editLink,
-  };
-};
+export type ClientEditPage = ReturnType<typeof clientEditPage>;

@@ -1,17 +1,15 @@
 // ============================================================
-// CRM /clients/[id] — client detail
+// CRM /clients/[id]
 // ============================================================
 
 import { error, fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { apiFetch } from '$lib/server/api';
-import type { Client, Project } from '@breeyard/shared';
+import { createCaller } from '$lib/server/api';
 
-type ClientWithProjects = Client & { projects: Project[]; unreadCount: number };
-
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, request }) => {
   try {
-    const client = await apiFetch<ClientWithProjects>(`/v1/clients/${params.id}`);
+    const caller = await createCaller(request);
+    const client = await caller.clients.get({ id: params.id });
     return { client, projects: client.projects, unreadCount: client.unreadCount };
   } catch {
     // eslint-disable-next-line @typescript-eslint/only-throw-error
@@ -20,13 +18,13 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions: Actions = {
-  invite: async ({ params }) => {
+  invite: async ({ params, request }) => {
     try {
-      await apiFetch(`/v1/clients/${params.id}/invite`, { method: 'POST' });
+      const caller = await createCaller(request);
+      await caller.clients.invite({ id: params.id });
       return { invited: true };
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to send invite.';
-      return fail(400, { error: message });
+      return fail(400, { error: err instanceof Error ? err.message : 'Failed to send invite.' });
     }
   },
 };

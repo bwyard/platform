@@ -1,11 +1,12 @@
-import type { Page } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
-export const createForgotPasswordPage = (page: Page, baseUrl: string) => {
-  const goto = () => page.goto(`${baseUrl}/forgot-password`);
-  const heading = () => page.getByRole('heading', { name: /reset your password/i });
-  const emailInput = () => page.getByTestId('forgot-password-email');
-  const submitButton = () => page.getByTestId('forgot-password-submit');
-  const backToSignIn = () => page.getByRole('link', { name: /back to sign in/i });
+export const forgotPasswordPage = (page: Page) => ({
+  goto: (baseUrl: string): Promise<void> =>
+    page.goto(`${baseUrl}/forgot-password`).then(() => undefined),
+  heading: (): Locator => page.getByRole('heading', { name: /reset your password/i }),
+  emailInput: (): Locator => page.getByTestId('forgot-password-email'),
+  submitButton: (): Locator => page.getByTestId('forgot-password-submit'),
+  backToSignIn: (): Locator => page.getByRole('link', { name: /back to sign in/i }),
+});
 
-  return { goto, heading, emailInput, submitButton, backToSignIn };
-};
+export type ForgotPasswordPage = ReturnType<typeof forgotPasswordPage>;

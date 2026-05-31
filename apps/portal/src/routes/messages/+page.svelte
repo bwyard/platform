@@ -27,7 +27,7 @@
           body={message.body}
           sent={message.fromClient}
           senderLabel={message.fromClient ? 'You' : '8 of Wands'}
-          timestamp={message.createdAt}
+          timestamp={String(message.createdAt)}
         />
       {/each}
     {/if}

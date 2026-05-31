@@ -52,7 +52,7 @@
           body={message.body}
           sent={!message.fromClient}
           senderLabel={message.fromClient ? data.client.name : 'You'}
-          timestamp={message.createdAt}
+          timestamp={String(message.createdAt)}
         />
       {/each}
     {/if}

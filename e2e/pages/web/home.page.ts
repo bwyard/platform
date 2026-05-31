@@ -1,9 +1,9 @@
-import type { Page } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
-export const createWebHomePage = (page: Page, baseUrl: string) => {
-  const goto = () => page.goto(baseUrl);
-  const nav = () => page.getByRole('navigation');
-  const footer = () => page.getByRole('contentinfo');
+export const webHomePage = (page: Page) => ({
+  goto: (baseUrl: string): Promise<void> => page.goto(baseUrl).then(() => undefined),
+  nav: (): Locator => page.getByRole('navigation'),
+  footer: (): Locator => page.getByRole('contentinfo'),
+});
 
-  return { goto, nav, footer };
-};
+export type WebHomePage = ReturnType<typeof webHomePage>;
