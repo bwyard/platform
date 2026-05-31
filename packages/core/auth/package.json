@@ -21,7 +21,7 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "better-auth": "^1.2.8",
+    "better-auth": "^1.6.2",
     "@breeyard/database": "workspace:*",
     "@breeyard/mail": "workspace:*"
   },
