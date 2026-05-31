@@ -49,10 +49,10 @@ jobs:
             PREVIOUS_COMMIT=$(git rev-parse HEAD~1 2>/dev/null || echo "")
 
             # Build all images
-            $COMPOSE build --no-cache api web cms crm portal portfolio
+            $COMPOSE build --no-cache web cms crm portal portfolio
 
             # Start infra first
-            $COMPOSE up -d --no-build postgres redis
+            $COMPOSE up -d --no-build postgres
 
             # Wait for postgres to accept connections before migrating
             NETWORK="breeyard_internal"
@@ -100,15 +100,15 @@ jobs:
                 -e SEED_ADMIN_PASSWORD="$SEED_ADMIN_PASSWORD" \
                 -e SEED_CLIENT_EMAIL="$SEED_CLIENT_EMAIL" \
                 -e SEED_CLIENT_PASSWORD="$SEED_CLIENT_PASSWORD" \
-                breeyard-api \
-                node /app/node_modules/@breeyard/database/dist/seed.js \
+                node:22-alpine \
+                sh -c "corepack enable && corepack prepare pnpm@10.32.1 --activate && pnpm install --frozen-lockfile && pnpm --filter @breeyard/database build && node packages/core/database/dist/seed.js" \
                 || echo "::warning::Seed failed — check DB manually"
             else
               echo "::warning::SEED_ADMIN_PASSWORD not set — skipping seed"
             fi
 
-            # Rolling restart: api first, then frontends
-            for service in api web cms crm portal portfolio; do
+            # Rolling restart
+            for service in web cms crm portal portfolio; do
               $COMPOSE up -d --no-build $service
               sleep 3
             done
@@ -122,8 +122,8 @@ jobs:
               echo "ERROR: Health check failed (HTTP $HTTP_STATUS). Rolling back..."
               if [ -n "$PREVIOUS_COMMIT" ]; then
                 git checkout "$PREVIOUS_COMMIT"
-                $COMPOSE build --no-cache api web cms crm portal portfolio
-                $COMPOSE up -d --no-build api web cms crm portal portfolio
+                $COMPOSE build --no-cache web cms crm portal portfolio
+                $COMPOSE up -d --no-build web cms crm portal portfolio
                 echo "Rollback complete to $PREVIOUS_COMMIT"
               fi
               exit 1
