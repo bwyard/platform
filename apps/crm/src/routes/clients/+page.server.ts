@@ -3,10 +3,10 @@
 // ============================================================
 
 import type { PageServerLoad } from './$types';
-import { apiFetch } from '$lib/server/api';
-import type { Client } from '@breeyard/shared';
+import { createCaller } from '$lib/server/api';
 
-export const load: PageServerLoad = async () => {
-  const clients = await apiFetch<Client[]>('/v1/clients');
+export const load: PageServerLoad = async ({ request }) => {
+  const caller = await createCaller(request);
+  const clients = await caller.clients.list();
   return { clients };
 };
