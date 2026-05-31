@@ -1,28 +1,19 @@
-import type { Page } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
-export const loginPage = (page: Page) => {
-  const goto = (baseUrl: string) => page.goto(`${baseUrl}/login`);
-  const emailInput = () => page.getByTestId('login-email');
-  const passwordInput = () => page.getByTestId('login-password');
-  const submitButton = () => page.getByTestId('login-submit');
-  const forgotPasswordLink = () => page.getByRole('link', { name: /forgot password/i });
-  const heading = () => page.getByRole('heading', { name: /sign in/i });
-
-  const fillAndSubmit = async (baseUrl: string, email: string, password: string) => {
+export const loginPage = (page: Page) => ({
+  goto: (baseUrl: string): Promise<void> => page.goto(`${baseUrl}/login`).then(() => undefined),
+  emailInput: (): Locator => page.getByTestId('login-email'),
+  passwordInput: (): Locator => page.getByTestId('login-password'),
+  submitButton: (): Locator => page.getByTestId('login-submit'),
+  forgotPasswordLink: (): Locator => page.getByRole('link', { name: /forgot password/i }),
+  heading: (): Locator => page.getByRole('heading', { name: /sign in/i }),
+  fillAndSubmit: async (baseUrl: string, email: string, password: string): Promise<void> => {
     await page.goto(`${baseUrl}/login`);
-    await emailInput().waitFor({ state: 'visible' });
-    await emailInput().fill(email);
-    await passwordInput().fill(password);
-    await submitButton().click();
-  };
+    await page.getByTestId('login-email').waitFor({ state: 'visible' });
+    await page.getByTestId('login-email').fill(email);
+    await page.getByTestId('login-password').fill(password);
+    await page.getByTestId('login-submit').click();
+  },
+});
 
-  return {
-    goto,
-    emailInput,
-    passwordInput,
-    submitButton,
-    forgotPasswordLink,
-    heading,
-    fillAndSubmit,
-  };
-};
+export type LoginPage = ReturnType<typeof loginPage>;

@@ -1,13 +1,13 @@
-import type { Page } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
-export const createResetPasswordPage = (page: Page, baseUrl: string) => {
-  const goto = (token?: string) =>
-    page.goto(`${baseUrl}/reset-password${token ? `?token=${token}` : ''}`);
-  const heading = () => page.getByRole('heading', { name: /set your password/i });
-  const newPasswordInput = () => page.getByTestId('reset-password-new');
-  const confirmInput = () => page.getByTestId('reset-password-confirm');
-  const submitButton = () => page.getByTestId('reset-password-submit');
-  const errorMessage = () => page.getByText(/invalid or missing reset token/i);
+export const resetPasswordPage = (page: Page) => ({
+  goto: (baseUrl: string, token?: string): Promise<void> =>
+    page.goto(`${baseUrl}/reset-password${token ? `?token=${token}` : ''}`).then(() => undefined),
+  heading: (): Locator => page.getByRole('heading', { name: /set your password/i }),
+  newPasswordInput: (): Locator => page.getByTestId('reset-password-new'),
+  confirmInput: (): Locator => page.getByTestId('reset-password-confirm'),
+  submitButton: (): Locator => page.getByTestId('reset-password-submit'),
+  errorMessage: (): Locator => page.getByText(/invalid or missing reset token/i),
+});
 
-  return { goto, heading, newPasswordInput, confirmInput, submitButton, errorMessage };
-};
+export type ResetPasswordPage = ReturnType<typeof resetPasswordPage>;

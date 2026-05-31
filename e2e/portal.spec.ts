@@ -1,8 +1,8 @@
 import { test, expect } from './fixtures';
 import { loginPage } from './pages/login.page';
-import { createForgotPasswordPage } from './pages/portal/forgot-password.page';
-import { createResetPasswordPage } from './pages/portal/reset-password.page';
-import { createPortalProjectDetailPage } from './pages/portal/project-detail.page';
+import { forgotPasswordPage } from './pages/portal/forgot-password.page';
+import { resetPasswordPage } from './pages/portal/reset-password.page';
+import { portalProjectDetailPage } from './pages/portal/project-detail.page';
 
 const SEED_PROJECT_ID = 'project-example';
 
@@ -33,46 +33,46 @@ test.describe('portal — client portal', () => {
 
 test.describe('portal — forgot password', () => {
   test('forgot-password page is publicly accessible', async ({ unauthedPage, urls }) => {
-    const forgotPassword = createForgotPasswordPage(unauthedPage, urls.portal);
-    await forgotPassword.goto();
+    const forgot = forgotPasswordPage(unauthedPage);
+    await forgot.goto(urls.portal);
     await expect(unauthedPage).toHaveURL(/forgot-password/);
-    await expect(forgotPassword.heading()).toBeVisible();
+    await expect(forgot.heading()).toBeVisible();
   });
 
   test('forgot-password has email input and submit button', async ({ unauthedPage, urls }) => {
-    const forgotPassword = createForgotPasswordPage(unauthedPage, urls.portal);
-    await forgotPassword.goto();
-    await expect(forgotPassword.emailInput()).toBeVisible();
-    await expect(forgotPassword.submitButton()).toBeVisible();
+    const forgot = forgotPasswordPage(unauthedPage);
+    await forgot.goto(urls.portal);
+    await expect(forgot.emailInput()).toBeVisible();
+    await expect(forgot.submitButton()).toBeVisible();
   });
 
   test('forgot-password has back to sign in link', async ({ unauthedPage, urls }) => {
-    const forgotPassword = createForgotPasswordPage(unauthedPage, urls.portal);
-    await forgotPassword.goto();
-    await expect(forgotPassword.backToSignIn()).toBeVisible();
+    const forgot = forgotPasswordPage(unauthedPage);
+    await forgot.goto(urls.portal);
+    await expect(forgot.backToSignIn()).toBeVisible();
   });
 });
 
 test.describe('portal — reset password', () => {
   test('reset-password page is publicly accessible', async ({ unauthedPage, urls }) => {
-    const resetPassword = createResetPasswordPage(unauthedPage, urls.portal);
-    await resetPassword.goto();
+    const reset = resetPasswordPage(unauthedPage);
+    await reset.goto(urls.portal);
     await expect(unauthedPage).toHaveURL(/reset-password/);
   });
 
   test('reset-password without token shows error state', async ({ unauthedPage, urls }) => {
-    const resetPassword = createResetPasswordPage(unauthedPage, urls.portal);
-    await resetPassword.goto();
-    await expect(resetPassword.errorMessage()).toBeVisible();
+    const reset = resetPasswordPage(unauthedPage);
+    await reset.goto(urls.portal);
+    await expect(reset.errorMessage()).toBeVisible();
   });
 
   test('reset-password with token shows password form', async ({ unauthedPage, urls }) => {
-    const resetPassword = createResetPasswordPage(unauthedPage, urls.portal);
-    await resetPassword.goto('test-token');
-    await expect(resetPassword.heading()).toBeVisible();
-    await expect(resetPassword.newPasswordInput()).toBeVisible();
-    await expect(resetPassword.confirmInput()).toBeVisible();
-    await expect(resetPassword.submitButton()).toBeVisible();
+    const reset = resetPasswordPage(unauthedPage);
+    await reset.goto(urls.portal, 'test-token');
+    await expect(reset.heading()).toBeVisible();
+    await expect(reset.newPasswordInput()).toBeVisible();
+    await expect(reset.confirmInput()).toBeVisible();
+    await expect(reset.submitButton()).toBeVisible();
   });
 });
 
@@ -84,8 +84,8 @@ test.describe('portal — project detail', () => {
   });
 
   test('project detail page loads when authenticated', async ({ page, urls }) => {
-    const detail = createPortalProjectDetailPage(page, urls.portal, SEED_PROJECT_ID);
-    await detail.goto();
+    const detail = portalProjectDetailPage(page);
+    await detail.goto(urls.portal, SEED_PROJECT_ID);
     await expect(detail.heading()).toBeVisible();
   });
 

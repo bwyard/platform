@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 
-export const createPortalDashboardPage = (page: Page, baseUrl: string) => {
-  const goto = () => page.goto(`${baseUrl}/dashboard`);
+export const portalDashboardPage = (page: Page) => ({
+  goto: (baseUrl: string): Promise<void> => page.goto(`${baseUrl}/dashboard`).then(() => undefined),
+});
 
-  return { goto };
-};
+export type PortalDashboardPage = ReturnType<typeof portalDashboardPage>;

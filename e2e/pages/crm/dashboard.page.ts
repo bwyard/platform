@@ -1,11 +1,11 @@
-import type { Page } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
-export const createCrmDashboardPage = (page: Page, baseUrl: string) => {
-  const goto = () => page.goto(`${baseUrl}/`);
-  const heading = () => page.getByRole('heading', { name: /dashboard/i });
-  const statCard = (label: string) =>
-    page.getByTestId(`stat-${label.toLowerCase().replace(/\s+/g, '-')}`);
-  const recentClients = () => page.getByTestId('recent-clients');
+export const crmDashboardPage = (page: Page) => ({
+  goto: (baseUrl: string): Promise<void> => page.goto(`${baseUrl}/`).then(() => undefined),
+  heading: (): Locator => page.getByRole('heading', { name: /dashboard/i }),
+  statCard: (label: string): Locator =>
+    page.getByTestId(`stat-${label.toLowerCase().replace(/\s+/g, '-')}`),
+  recentClients: (): Locator => page.getByTestId('recent-clients'),
+});
 
-  return { goto, heading, statCard, recentClients };
-};
+export type CrmDashboardPage = ReturnType<typeof crmDashboardPage>;
