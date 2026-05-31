@@ -101,7 +101,7 @@ jobs:
                 -e SEED_CLIENT_EMAIL="$SEED_CLIENT_EMAIL" \
                 -e SEED_CLIENT_PASSWORD="$SEED_CLIENT_PASSWORD" \
                 node:22-alpine \
-                sh -c "corepack enable && corepack prepare pnpm@10.32.1 --activate && pnpm install --frozen-lockfile && node packages/core/database/dist/seed.js" \
+                sh -c "corepack enable && corepack prepare pnpm@10.32.1 --activate && pnpm install --frozen-lockfile && pnpm --filter @breeyard/database build && node packages/core/database/dist/seed.js" \
                 || echo "::warning::Seed failed — check DB manually"
             else
               echo "::warning::SEED_ADMIN_PASSWORD not set — skipping seed"
