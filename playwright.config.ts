@@ -93,13 +93,6 @@ export default defineConfig({
     ? []
     : [
         {
-          name: 'api',
-          command: 'pnpm --filter @breeyard/api dev',
-          url: 'http://localhost:3010/health',
-          reuseExistingServer: true,
-          timeout: 60_000,
-        },
-        {
           name: 'web',
           command: 'pnpm --filter @breeyard/web dev',
           url: 'http://localhost:3011',
