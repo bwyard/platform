@@ -294,6 +294,9 @@ importers:
 
   apps/portfolio:
     dependencies:
+      '@breeyard/security':
+        specifier: workspace:*
+        version: link:../../packages/core/security
       '@breeyard/seo':
         specifier: workspace:*
         version: link:../../packages/core/seo
