@@ -1,0 +1,85 @@
+name: Deploy to Staging
+
+on:
+  workflow_dispatch:
+
+# Staging deploys never cancel each other — let the previous one finish.
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Deploy staging via SSH
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -euo pipefail
+
+            APP_DIR="/home/bree/app/breeyard"
+            COMPOSE_FILE="$APP_DIR/infra/docker/docker-compose.staging.yml"
+            ENV_FILE="/home/bree/stacks/breeyard/.env.staging"
+
+            if [ ! -d "$APP_DIR/.git" ]; then
+              git clone git@github-bwyard:bwyard/platform.git "$APP_DIR"
+            fi
+
+            cd "$APP_DIR"
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Build and start staging stack
+            docker compose -p breeyard-staging \
+              -f "$COMPOSE_FILE" \
+              --env-file "$ENV_FILE" \
+              up -d --build
+
+            # Wait for API to be ready
+            echo "Waiting for staging API..."
+            for i in $(seq 1 30); do
+              if curl --silent --fail --max-time 5 http://localhost:4400/health > /dev/null 2>&1; then
+                echo "Staging API ready"
+                break
+              fi
+              if [ "$i" -eq 30 ]; then
+                echo "::error::Staging API did not become ready"
+                exit 1
+              fi
+              sleep 3
+            done
+
+            # Run migrations against staging DB
+            POSTGRES_PASSWORD=$(grep -E '^POSTGRES_PASSWORD=' "$ENV_FILE" | cut -d= -f2-)
+            docker run --rm \
+              --network breeyard-staging_staging_internal \
+              --env-file "$ENV_FILE" \
+              -e DATABASE_URL="postgresql://breeyard:${POSTGRES_PASSWORD}@breeyard-staging-postgres:5432/breeyard" \
+              -e CI=true \
+              -v "$APP_DIR:/workspace" \
+              -w /workspace \
+              node:22-alpine \
+              sh -c "corepack enable \
+                && corepack prepare pnpm@10.32.1 --activate \
+                && pnpm install --frozen-lockfile \
+                && pnpm --filter @breeyard/database db:migrate"
+
+            echo "Staging deploy complete."
+
+      - name: Notify success
+        if: success()
+        run: echo "::notice::Staging deploy succeeded — ${{ github.sha }}"
+
+      - name: Notify failure
+        if: failure()
+        run: echo "::error::Staging deploy failed — ${{ github.sha }}"
