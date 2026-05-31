@@ -3,6 +3,8 @@ lockfileVersion: '9.0'
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
+  ignoredOptionalDependencies:
+    - prisma
 
 overrides:
   vite: 8.0.14
