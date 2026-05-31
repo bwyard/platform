@@ -1,17 +1,13 @@
 // ============================================================
 // @breeyard/crm — auth client
-// Points to the Fastify API, not the crm app itself.
+// Auth handled by this app's own SvelteKit handler via @breeyard/api-server.
+// baseURL omitted — better-auth client defaults to current origin.
 // ============================================================
 
-import { PUBLIC_API_URL } from '$env/static/public';
 import { createAuthClient } from 'better-auth/svelte';
-
-const apiBase: string =
-  typeof window !== 'undefined' ? PUBLIC_API_URL : (process.env.INTERNAL_API_URL ?? '');
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const authClient: ReturnType<typeof createAuthClient<any>> = createAuthClient({
-  baseURL: apiBase,
   basePath: '/auth',
   fetchOptions: { credentials: 'include' },
 });
