@@ -1,1 +1,4 @@
-pnpm lint-staged
+#!/bin/sh
+set -e
+pnpm nx affected --target=lint --base=HEAD~1 --head=HEAD
+echo 'pre-commit lint passed'
