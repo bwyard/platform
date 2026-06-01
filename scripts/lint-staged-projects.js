@@ -19,11 +19,7 @@ if (!stagedRaw) {
   process.exit(0);
 }
 
-const files = stagedRaw
-  .split('\n')
-  .filter(Boolean)
-  .filter(isLintable)
-  .filter(existsSync); // skip deleted files
+const files = stagedRaw.split('\n').filter(Boolean).filter(isLintable).filter(existsSync); // skip deleted files
 
 if (files.length === 0) {
   console.log('pre-commit: no lintable staged files, skipping');
