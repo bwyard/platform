@@ -11,14 +11,9 @@ import { fileURLToPath } from 'node:url';
 // Use the node binary already running this script + direct bin paths.
 // Avoids pnpm/npx PATH dependency — git hooks run in a minimal shell environment.
 const ESLINT_BIN = fileURLToPath(new URL('../node_modules/eslint/bin/eslint.js', import.meta.url));
-const PRETTIER_BIN = fileURLToPath(
-  new URL('../node_modules/prettier/bin/prettier.cjs', import.meta.url),
-);
 
 const LINT_EXTS = new Set(['.ts', '.js', '.mjs', '.cjs', '.svelte']);
-const FORMAT_EXTS = new Set(['.ts', '.js', '.mjs', '.cjs', '.svelte', '.json', '.css', '.md']);
 const ESLINT_TIMEOUT_MS = 30_000;
-const FORMAT_TIMEOUT_MS = 30_000;
 
 // .d.ts excluded — eslint projectService hangs on declaration files not in allowDefaultProject.
 // Type correctness on .d.ts is enforced by tsc at pre-push. No logic to lint in declarations.
@@ -26,16 +21,8 @@ export const isDts = (f) => f.endsWith('.d.ts');
 
 export const isLintable = (f) => !isDts(f) && LINT_EXTS.has(f.slice(f.lastIndexOf('.')));
 
-export const isFormattable = (f) => {
-  const ext = f.slice(f.lastIndexOf('.'));
-  return FORMAT_EXTS.has(ext);
-};
-
 export const parseStagedFiles = (raw) =>
   raw.split('\n').filter(Boolean).filter(isLintable).filter(existsSync); // skip deleted files — existsSync assumes CWD = repo root (husky guarantees this)
-
-export const parseStagedFormattable = (raw) =>
-  raw.split('\n').filter(Boolean).filter(isFormattable).filter(existsSync);
 
 function main() {
   let stagedRaw;
@@ -53,36 +40,13 @@ function main() {
     process.exit(0);
   }
 
-  const fmtFiles = parseStagedFormattable(stagedRaw);
   const lintFiles = parseStagedFiles(stagedRaw);
-
-  // Step 1: format staged files with prettier --write, then re-stage.
-  // Runs before lint so lint sees the formatted version.
-  if (fmtFiles.length > 0) {
-    console.log(`pre-commit: formatting ${fmtFiles.length} file(s)`);
-    try {
-      execFileSync(process.execPath, [PRETTIER_BIN, '--write', ...fmtFiles], {
-        stdio: 'inherit',
-        timeout: FORMAT_TIMEOUT_MS,
-      });
-    } catch (err) {
-      if (err.signal === 'SIGTERM') {
-        console.error(`pre-commit: prettier timed out after ${FORMAT_TIMEOUT_MS / 1000}s`);
-      } else {
-        console.error(`pre-commit: prettier failed — ${String(err)}`);
-      }
-      process.exit(1);
-    }
-    // Re-stage formatted files so the commit contains the formatted version.
-    execFileSync('git', ['add', ...fmtFiles], { stdio: 'inherit' });
-  }
 
   if (lintFiles.length === 0) {
     console.log('pre-commit: no lintable staged files, skipping lint');
     process.exit(0);
   }
 
-  // Step 2: lint staged files.
   console.log(`pre-commit: linting ${lintFiles.length} staged file(s)`);
   lintFiles.forEach((f) => console.log(`  ${f}`));
 
