@@ -80,7 +80,10 @@ export default tseslint.config(
 
   {
     rules: {
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
@@ -94,7 +97,10 @@ export default tseslint.config(
       // Svelte 5 component props use `type Props = {...}` — no extension/inheritance.
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       // Allow inline `import('./$types').X` — idiomatic SvelteKit +page/+layout pattern.
-      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', disallowTypeAnnotations: false }],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports', disallowTypeAnnotations: false },
+      ],
       // SvelteKit uses goto() and <a href> directly — resolve() is not a SvelteKit API.
       'svelte/no-navigation-without-resolve': 'off',
     },
