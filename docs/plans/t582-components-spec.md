@@ -110,10 +110,28 @@ export { default as ContactForm } from './ContactForm.svelte';
 | SvelteKit imports allowed           | `$app/forms`, `$app/stores`, `$app/navigation`, `@sveltejs/kit` |
 | @breeyard/ui — YES                  | All UI primitives come from here                                |
 | bits-ui — NEVER                     | Apps and components never import bits-ui directly               |
-| @breeyard/hooks — when available    | useMediaQuery for responsive layouts                            |
-| No raw HTML form logic              | All forms use use:enhance + server action pattern               |
+| @breeyard/hooks — when available    | useBreakpoint for responsive layouts, TanStack Query wrappers   |
 | .svelte files distributed as source | Same as @breeyard/ui — tsc handles .ts only                     |
 | No circular imports                 | @breeyard/ui must not import from @breeyard/components          |
+
+### Form pattern (locked — coord ruling 2026-06-01)
+
+| Form type            | Pattern                                                                    |
+| -------------------- | -------------------------------------------------------------------------- |
+| Simple auth forms    | Native server actions + use:enhance (LoginForm, ForgotPasswordForm, Reset) |
+| Complex data forms   | `@tanstack/svelte-form` + `@tanstack/zod-form-adapter` + fetch to action   |
+| Server error mapping | AP's forms/svelte bridge maps server fail() errors → TanStack field state  |
+
+**TanStack ecosystem (locked):**
+
+- `@tanstack/svelte-form` — form state, field validation, array fields, multi-step
+- `@tanstack/svelte-query` v5 — data fetching/caching/mutations (via @breeyard/hooks)
+- `@tanstack/svelte-table` — DataTable foundation (headless sort/filter/pagination)
+- `@tanstack/svelte-virtual` — virtualized lists for large datasets
+- `@tanstack/zod-form-adapter` — Zod schema → TanStack field validators
+
+**Principle:** @breeyard/\* are thin wrappers over TanStack ecosystem standards.
+Generated client codebases are any-dev-maintainable — no proprietary implementations.
 
 ---
 

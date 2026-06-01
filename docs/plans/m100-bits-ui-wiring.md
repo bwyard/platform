@@ -166,7 +166,7 @@ Do NOT start t582 until t583b is reviewed and green.
 | Alert          | native (role=alert)               | default, success, warning, destructive, info, form     |
 | EmptyState     | native                            | default (message + optional CTA)                       |
 | MetaCard       | native                            | key-value metadata display                             |
-| DataTable      | native                            | slot-based columns, hover rows                         |
+| DataTable      | @tanstack/svelte-table            | headless — col defs, sort, filter, pagination, select  |
 | PageHeader     | native                            | title slot + action slot, flex justify-between         |
 | SectionHeader  | native                            | small-caps uppercase label                             |
 | BackLink       | native                            | ← href + label                                         |
@@ -313,6 +313,31 @@ export const actions: Actions = {
 - [ ] Full suite green locally
 - [ ] Push → CI E2E green
 - [ ] Signal coord/devops — PR #45 ready to merge
+
+---
+
+## TanStack Ecosystem (locked — coord ruling 2026-06-01)
+
+@breeyard/\* packages are thin wrappers over TanStack standards. Generated client code is
+any-dev-maintainable — no proprietary implementations.
+
+| Package                    | Role                                                           | Wired in               |
+| -------------------------- | -------------------------------------------------------------- | ---------------------- |
+| @tanstack/svelte-form      | Form state, field validation, array fields, multi-step         | @breeyard/components   |
+| @tanstack/zod-form-adapter | Zod schema → TanStack field validators                         | @breeyard/components   |
+| @tanstack/svelte-query v5  | Data fetching, caching, mutations, optimistic updates          | @breeyard/hooks        |
+| @tanstack/svelte-table     | Headless table: col defs, sort, filter, pagination, row select | @breeyard/ui DataTable |
+| @tanstack/svelte-virtual   | Virtualized lists for large datasets (galleries, CRM feeds)    | @breeyard/ui           |
+
+**@breeyard/hooks wrapper pattern:**
+TanStack Query returns `{ data, error }` → convert to `Result<T,E>` from @breeyard/shared.
+Wire @breeyard/reporter into QueryClient global error handler.
+
+**Watch (not ready):**
+
+- @tanstack/svelte-hotkeys (alpha) — keyboard shortcuts for admin/CRM power users
+- @tanstack/svelte-db (beta) — live queries, PWA offline
+- @tanstack/svelte-ai (alpha) — unified AI SDK
 
 ---
 
