@@ -362,6 +362,7 @@ across all 5 apps and found the following additional patterns:
 ### Pattern 10 — StatCard (HIGH, 2 apps)
 
 Files:
+
 - `apps/crm/src/routes/+page.svelte` — 4 stat cards (total, active, prospects, unread)
 - `apps/portal/src/routes/dashboard/+page.svelte` — project cards with status badge
 
@@ -372,6 +373,7 @@ Stat grid: value + label + optional link wrapper. Repeats as CRM grows (invoices
 ### Pattern 11 — MessageThread + MessageComposer (HIGH, 2 apps)
 
 Files:
+
 - `apps/crm/src/routes/clients/[id]/messages/+page.svelte`
 - `apps/portal/src/routes/messages/+page.svelte`
 
@@ -383,6 +385,7 @@ SvelteKit-coupled (use:enhance, $app/forms).
 ### Pattern 12 — statusColors defined a 3rd time (BLOCKER)
 
 `apps/crm/src/routes/+page.svelte` (dashboard) redefines the same statusColors map as:
+
 - `apps/crm/src/routes/clients/+page.svelte`
 - `apps/crm/src/routes/clients/[id]/+page.svelte`
 - `apps/crm/src/routes/projects/[id]/+page.svelte`
@@ -393,6 +396,7 @@ SvelteKit-coupled (use:enhance, $app/forms).
 ### Pattern 13 — FormAlert (MEDIUM, 3+ files)
 
 Files:
+
 - `apps/crm/src/routes/projects/[id]/+page.svelte`
 - `apps/crm/src/routes/clients/[id]/edit/+page.svelte`
 - `apps/crm/src/routes/clients/new/+page.svelte`
@@ -429,22 +433,22 @@ These don't exist in code yet but are confirmed needed based on known roadmap:
 
 ### packages/ui
 
-| Component       | Why needed                                                        | bits-ui?             |
-| --------------- | ----------------------------------------------------------------- | -------------------- |
-| Pagination      | CRM client list will hit hundreds of rows                         | No — semantic        |
-| DatePicker      | CRM project start/complete dates, Calypso scheduling              | **Yes — bits-ui**    |
-| Calendar        | Calypso scheduling view, full month/week grid                     | **Yes — bits-ui**    |
-| FileUpload      | CMS media page (currently stub)                                   | No — semantic        |
-| ImageGrid       | CMS gallery page (currently stub)                                 | No — semantic        |
-| RichTextEditor  | CMS blocks/pages (Tiptap integration)                             | No — Tiptap directly |
-| Breadcrumb      | CMS nested nav, CRM client→project→messages depth                 | **Yes — bits-ui**    |
-| Tabs            | CRM client detail (Overview/Projects/Messages/Invoices)           | **Yes — bits-ui**    |
+| Component      | Why needed                                              | bits-ui?             |
+| -------------- | ------------------------------------------------------- | -------------------- |
+| Pagination     | CRM client list will hit hundreds of rows               | No — semantic        |
+| DatePicker     | CRM project start/complete dates, Calypso scheduling    | **Yes — bits-ui**    |
+| Calendar       | Calypso scheduling view, full month/week grid           | **Yes — bits-ui**    |
+| FileUpload     | CMS media page (currently stub)                         | No — semantic        |
+| ImageGrid      | CMS gallery page (currently stub)                       | No — semantic        |
+| RichTextEditor | CMS blocks/pages (Tiptap integration)                   | No — Tiptap directly |
+| Breadcrumb     | CMS nested nav, CRM client→project→messages depth       | **Yes — bits-ui**    |
+| Tabs           | CRM client detail (Overview/Projects/Messages/Invoices) | **Yes — bits-ui**    |
 
 ### @breeyard/components
 
-| Component    | Why needed                                          |
-| ------------ | --------------------------------------------------- |
-| ContactForm  | apps/web + apps/portfolio — use:enhance + action    |
+| Component   | Why needed                                       |
+| ----------- | ------------------------------------------------ |
+| ContactForm | apps/web + apps/portfolio — use:enhance + action |
 
 ---
 
@@ -452,59 +456,59 @@ These don't exist in code yet but are confirmed needed based on known roadmap:
 
 ### packages/ui (zero SvelteKit coupling, Svelte OK)
 
-| Component       | Reason                                         | bits-ui?             |
-| --------------- | ---------------------------------------------- | -------------------- |
-| Button          | Used everywhere                                | Yes — bits-ui        |
-| Input           | Form fields in 3+ apps                         | Yes — bits-ui        |
-| Label           | Paired with Input                              | Yes — bits-ui        |
-| Textarea        | Client/project forms                           | Yes — bits-ui        |
-| Select          | Status selects, dropdowns                      | Yes — bits-ui        |
-| Checkbox        | Form toggles                                   | Yes — bits-ui        |
-| RadioGroup      | Option selection                               | Yes — bits-ui        |
-| Switch          | Toggle settings                                | Yes — bits-ui        |
-| Combobox        | Searchable selects                             | Yes — bits-ui        |
-| Badge           | Status display                                 | No — semantic        |
-| StatusBadge     | Repeated status color maps (5 inline instances)| No — semantic        |
-| Avatar          | User display                                   | Yes — bits-ui        |
-| Card            | Project cards, stat cards, detail cards        | Yes — bits-ui        |
-| StatCard        | Dashboard metric cards                         | No — semantic        |
-| Separator       | Visual dividers                                | Yes — bits-ui        |
-| Tooltip         | Hover context                                  | Yes — bits-ui        |
-| Dialog          | Modals                                         | Yes — bits-ui        |
-| Sheet           | Side panels                                    | Yes — bits-ui        |
-| Popover         | Dropdowns, context menus                       | Yes — bits-ui        |
-| Tabs            | CRM client detail sections                     | Yes — bits-ui        |
-| Accordion       | Collapsible content                            | Yes — bits-ui        |
-| Progress        | Loading bars                                   | Yes — bits-ui        |
-| DatePicker      | CRM project dates, Calypso                     | Yes — bits-ui        |
-| Calendar        | Calypso scheduling view                        | Yes — bits-ui        |
-| Breadcrumb      | CMS + CRM deep navigation                      | Yes — bits-ui        |
-| Pagination      | List views with many rows                      | No — semantic        |
-| FileUpload      | CMS media                                      | No — semantic        |
-| ImageGrid       | CMS gallery                                    | No — semantic        |
-| RichTextEditor  | CMS blocks/pages                               | No — Tiptap          |
-| Spinner         | Loading states                                 | No — semantic        |
-| Alert           | Error/success messages + FormAlert pattern     | No — semantic        |
-| EmptyState      | CRM + Portal lists                             | No — semantic        |
-| MetaCard        | Detail meta sidebar                            | No — semantic        |
-| DataTable       | CRM clients table                              | No — semantic        |
-| PageHeader      | List page headers with action button           | No — semantic        |
-| SectionHeader   | Small-caps section labels                      | No — semantic        |
-| BackLink        | ← Parent navigation                            | No — semantic        |
-| MessageBubble   | Chat messages (update existing)                | No — semantic        |
+| Component      | Reason                                          | bits-ui?      |
+| -------------- | ----------------------------------------------- | ------------- |
+| Button         | Used everywhere                                 | Yes — bits-ui |
+| Input          | Form fields in 3+ apps                          | Yes — bits-ui |
+| Label          | Paired with Input                               | Yes — bits-ui |
+| Textarea       | Client/project forms                            | Yes — bits-ui |
+| Select         | Status selects, dropdowns                       | Yes — bits-ui |
+| Checkbox       | Form toggles                                    | Yes — bits-ui |
+| RadioGroup     | Option selection                                | Yes — bits-ui |
+| Switch         | Toggle settings                                 | Yes — bits-ui |
+| Combobox       | Searchable selects                              | Yes — bits-ui |
+| Badge          | Status display                                  | No — semantic |
+| StatusBadge    | Repeated status color maps (5 inline instances) | No — semantic |
+| Avatar         | User display                                    | Yes — bits-ui |
+| Card           | Project cards, stat cards, detail cards         | Yes — bits-ui |
+| StatCard       | Dashboard metric cards                          | No — semantic |
+| Separator      | Visual dividers                                 | Yes — bits-ui |
+| Tooltip        | Hover context                                   | Yes — bits-ui |
+| Dialog         | Modals                                          | Yes — bits-ui |
+| Sheet          | Side panels                                     | Yes — bits-ui |
+| Popover        | Dropdowns, context menus                        | Yes — bits-ui |
+| Tabs           | CRM client detail sections                      | Yes — bits-ui |
+| Accordion      | Collapsible content                             | Yes — bits-ui |
+| Progress       | Loading bars                                    | Yes — bits-ui |
+| DatePicker     | CRM project dates, Calypso                      | Yes — bits-ui |
+| Calendar       | Calypso scheduling view                         | Yes — bits-ui |
+| Breadcrumb     | CMS + CRM deep navigation                       | Yes — bits-ui |
+| Pagination     | List views with many rows                       | No — semantic |
+| FileUpload     | CMS media                                       | No — semantic |
+| ImageGrid      | CMS gallery                                     | No — semantic |
+| RichTextEditor | CMS blocks/pages                                | No — Tiptap   |
+| Spinner        | Loading states                                  | No — semantic |
+| Alert          | Error/success messages + FormAlert pattern      | No — semantic |
+| EmptyState     | CRM + Portal lists                              | No — semantic |
+| MetaCard       | Detail meta sidebar                             | No — semantic |
+| DataTable      | CRM clients table                               | No — semantic |
+| PageHeader     | List page headers with action button            | No — semantic |
+| SectionHeader  | Small-caps section labels                       | No — semantic |
+| BackLink       | ← Parent navigation                             | No — semantic |
+| MessageBubble  | Chat messages (update existing)                 | No — semantic |
 
 ### @breeyard/components (SvelteKit-coupled, composes packages/ui)
 
-| Component          | Reason                                                               |
-| ------------------ | -------------------------------------------------------------------- |
-| LoginForm          | CMS + CRM + Portal login — server action + use:enhance + onSuccess   |
-| SidebarLayout      | CMS + CRM + Portal shared layout shell                               |
-| HeaderLayout       | Web + Portfolio header + nav + footer                                |
-| MessageThread      | Scrollable message thread — uses MessageBubble + use:enhance         |
-| MessageComposer    | Textarea + send button — use:enhance, composes MessageThread         |
-| ContactForm        | apps/web + apps/portfolio — use:enhance + server action              |
-| ForgotPasswordForm | Portal (extract when other apps need it)                             |
-| ResetPasswordForm  | Portal (extract when other apps need it)                             |
+| Component          | Reason                                                             |
+| ------------------ | ------------------------------------------------------------------ |
+| LoginForm          | CMS + CRM + Portal login — server action + use:enhance + onSuccess |
+| SidebarLayout      | CMS + CRM + Portal shared layout shell                             |
+| HeaderLayout       | Web + Portfolio header + nav + footer                              |
+| MessageThread      | Scrollable message thread — uses MessageBubble + use:enhance       |
+| MessageComposer    | Textarea + send button — use:enhance, composes MessageThread       |
+| ContactForm        | apps/web + apps/portfolio — use:enhance + server action            |
+| ForgotPasswordForm | Portal (extract when other apps need it)                           |
+| ResetPasswordForm  | Portal (extract when other apps need it)                           |
 
 ---
 
@@ -527,11 +531,11 @@ BackLink) are scoped and confirmed — build as each app needs them, not all upf
 
 ## Progress Log
 
-| Date       | Item                                    | Status    |
-| ---------- | --------------------------------------- | --------- |
-| 2026-05-31 | packages/ui audit                       | Complete  |
-| 2026-05-31 | App pattern scan (partial — 3 of 5)    | Complete  |
-| 2026-05-31 | AP reference implementation             | Complete  |
-| 2026-05-31 | Decisions documented + locked           | Complete  |
-| 2026-06-01 | Full app re-scan (all 5 apps, all files)| Complete  |
-| 2026-06-01 | Forward-looking components confirmed    | Complete  |
+| Date       | Item                                     | Status   |
+| ---------- | ---------------------------------------- | -------- |
+| 2026-05-31 | packages/ui audit                        | Complete |
+| 2026-05-31 | App pattern scan (partial — 3 of 5)      | Complete |
+| 2026-05-31 | AP reference implementation              | Complete |
+| 2026-05-31 | Decisions documented + locked            | Complete |
+| 2026-06-01 | Full app re-scan (all 5 apps, all files) | Complete |
+| 2026-06-01 | Forward-looking components confirmed     | Complete |
