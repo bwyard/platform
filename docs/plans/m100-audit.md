@@ -354,59 +354,184 @@ SidebarLayout contains SvelteKit `<a>` links and reads session data — it's Sve
 
 ---
 
-## 5. Full Component Extraction List (ordered by priority)
+## 5. Missed Patterns (s015 re-scan — full app coverage)
 
-### packages/ui (zero SvelteKit coupling, Svelte OK)
+The original audit only scanned the files listed in each pattern. s015 read every .svelte file
+across all 5 apps and found the following additional patterns:
 
-| Component   | Reason                      | bits-ui?          |
-| ----------- | --------------------------- | ----------------- |
-| Button      | Used everywhere             | No — semantic     |
-| Input       | Form fields in 3+ apps      | No — semantic     |
-| Label       | Paired with Input           | No — semantic     |
-| Textarea    | Client/project forms        | No — semantic     |
-| Select      | Tech level, status selects  | No — semantic     |
-| Badge       | Status display              | No — semantic     |
-| StatusBadge | Repeated status color maps  | No — semantic     |
-| Card        | Project cards, detail cards | No — semantic     |
-| Alert       | Error/success messages      | No — semantic     |
-| Spinner     | Loading states              | No — semantic     |
-| EmptyState  | CRM + Portal lists          | No — semantic     |
-| MetaCard    | Detail meta sidebar         | No — semantic     |
-| DataTable   | CRM clients table           | No — semantic     |
-| Dialog      | Modals (future use)         | **Yes — bits-ui** |
-| Popover     | Tooltips, dropdowns         | **Yes — bits-ui** |
-| Combobox    | Searchable selects          | **Yes — bits-ui** |
+### Pattern 10 — StatCard (HIGH, 2 apps)
 
-### @breeyard/components (SvelteKit-coupled, composes packages/ui)
+Files:
+- `apps/crm/src/routes/+page.svelte` — 4 stat cards (total, active, prospects, unread)
+- `apps/portal/src/routes/dashboard/+page.svelte` — project cards with status badge
 
-| Component          | Reason                                                             |
-| ------------------ | ------------------------------------------------------------------ |
-| LoginForm          | CMS + CRM + Portal login — server action + use:enhance + onSuccess |
-| SidebarLayout      | CMS + CRM + Portal shared layout shell                             |
-| ForgotPasswordForm | Portal — extract when other apps need it                           |
-| ResetPasswordForm  | Portal — same                                                      |
+Stat grid: value + label + optional link wrapper. Repeats as CRM grows (invoices count, projects count, etc.).
+
+→ Extract: `packages/ui` StatCard.svelte — props: label, value, href?
+
+### Pattern 11 — MessageThread + MessageComposer (HIGH, 2 apps)
+
+Files:
+- `apps/crm/src/routes/clients/[id]/messages/+page.svelte`
+- `apps/portal/src/routes/messages/+page.svelte`
+
+Nearly identical: scrollable thread of MessageBubble + textarea compose box + send button + use:enhance.
+SvelteKit-coupled (use:enhance, $app/forms).
+
+→ Extract: `@breeyard/components` MessageThread.svelte + MessageComposer.svelte
+
+### Pattern 12 — statusColors defined a 3rd time (BLOCKER)
+
+`apps/crm/src/routes/+page.svelte` (dashboard) redefines the same statusColors map as:
+- `apps/crm/src/routes/clients/+page.svelte`
+- `apps/crm/src/routes/clients/[id]/+page.svelte`
+- `apps/crm/src/routes/projects/[id]/+page.svelte`
+- `apps/portal/src/routes/dashboard/+page.svelte`
+
+5 files defining the same inline map. StatusBadge in packages/ui is the fix — all 5 migrate to it.
+
+### Pattern 13 — FormAlert (MEDIUM, 3+ files)
+
+Files:
+- `apps/crm/src/routes/projects/[id]/+page.svelte`
+- `apps/crm/src/routes/clients/[id]/edit/+page.svelte`
+- `apps/crm/src/routes/clients/new/+page.svelte`
+
+Pattern: `{#if form?.error}<p class="rounded bg-red-50 ...">{form.error}</p>{/if}` and green variant for success.
+Can be the Alert component from packages/ui with a `form` variant.
+
+### Pattern 14 — SectionHeader (LOW, multiple files)
+
+Files: CRM dashboard, portal dashboard, clients list
+Pattern: `<h2 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">Label</h2>`
+
+→ Extract: `packages/ui` SectionHeader.svelte — or just a documented class pattern (low priority)
+
+### Pattern 15 — PageHeader (LOW, multiple files)
+
+Files: CRM clients list (h1 + Add client button), will repeat on every list page
+Pattern: `<div class="mb-6 flex items-center justify-between"><h1>...</h1><a>Action</a></div>`
+
+→ Extract: `packages/ui` PageHeader.svelte — slots: title, action
+
+### Pattern 16 — BackLink (LOW, 2 files)
+
+Files: CRM messages page, CRM project detail
+Pattern: `<a href="...">← Parent Name</a>`
+
+→ Extract: `packages/ui` BackLink.svelte — props: href, label
 
 ---
 
-## 6. Updated Sequence (post-audit)
+## 6. Forward-Looking Components (all confirmed — build now)
+
+These don't exist in code yet but are confirmed needed based on known roadmap:
+
+### packages/ui
+
+| Component       | Why needed                                                        | bits-ui?             |
+| --------------- | ----------------------------------------------------------------- | -------------------- |
+| Pagination      | CRM client list will hit hundreds of rows                         | No — semantic        |
+| DatePicker      | CRM project start/complete dates, Calypso scheduling              | **Yes — bits-ui**    |
+| Calendar        | Calypso scheduling view, full month/week grid                     | **Yes — bits-ui**    |
+| FileUpload      | CMS media page (currently stub)                                   | No — semantic        |
+| ImageGrid       | CMS gallery page (currently stub)                                 | No — semantic        |
+| RichTextEditor  | CMS blocks/pages (Tiptap integration)                             | No — Tiptap directly |
+| Breadcrumb      | CMS nested nav, CRM client→project→messages depth                 | **Yes — bits-ui**    |
+| Tabs            | CRM client detail (Overview/Projects/Messages/Invoices)           | **Yes — bits-ui**    |
+
+### @breeyard/components
+
+| Component    | Why needed                                          |
+| ------------ | --------------------------------------------------- |
+| ContactForm  | apps/web + apps/portfolio — use:enhance + action    |
+
+---
+
+## 7. Full Component Extraction List (updated — ordered by priority)
+
+### packages/ui (zero SvelteKit coupling, Svelte OK)
+
+| Component       | Reason                                         | bits-ui?             |
+| --------------- | ---------------------------------------------- | -------------------- |
+| Button          | Used everywhere                                | Yes — bits-ui        |
+| Input           | Form fields in 3+ apps                         | Yes — bits-ui        |
+| Label           | Paired with Input                              | Yes — bits-ui        |
+| Textarea        | Client/project forms                           | Yes — bits-ui        |
+| Select          | Status selects, dropdowns                      | Yes — bits-ui        |
+| Checkbox        | Form toggles                                   | Yes — bits-ui        |
+| RadioGroup      | Option selection                               | Yes — bits-ui        |
+| Switch          | Toggle settings                                | Yes — bits-ui        |
+| Combobox        | Searchable selects                             | Yes — bits-ui        |
+| Badge           | Status display                                 | No — semantic        |
+| StatusBadge     | Repeated status color maps (5 inline instances)| No — semantic        |
+| Avatar          | User display                                   | Yes — bits-ui        |
+| Card            | Project cards, stat cards, detail cards        | Yes — bits-ui        |
+| StatCard        | Dashboard metric cards                         | No — semantic        |
+| Separator       | Visual dividers                                | Yes — bits-ui        |
+| Tooltip         | Hover context                                  | Yes — bits-ui        |
+| Dialog          | Modals                                         | Yes — bits-ui        |
+| Sheet           | Side panels                                    | Yes — bits-ui        |
+| Popover         | Dropdowns, context menus                       | Yes — bits-ui        |
+| Tabs            | CRM client detail sections                     | Yes — bits-ui        |
+| Accordion       | Collapsible content                            | Yes — bits-ui        |
+| Progress        | Loading bars                                   | Yes — bits-ui        |
+| DatePicker      | CRM project dates, Calypso                     | Yes — bits-ui        |
+| Calendar        | Calypso scheduling view                        | Yes — bits-ui        |
+| Breadcrumb      | CMS + CRM deep navigation                      | Yes — bits-ui        |
+| Pagination      | List views with many rows                      | No — semantic        |
+| FileUpload      | CMS media                                      | No — semantic        |
+| ImageGrid       | CMS gallery                                    | No — semantic        |
+| RichTextEditor  | CMS blocks/pages                               | No — Tiptap          |
+| Spinner         | Loading states                                 | No — semantic        |
+| Alert           | Error/success messages + FormAlert pattern     | No — semantic        |
+| EmptyState      | CRM + Portal lists                             | No — semantic        |
+| MetaCard        | Detail meta sidebar                            | No — semantic        |
+| DataTable       | CRM clients table                              | No — semantic        |
+| PageHeader      | List page headers with action button           | No — semantic        |
+| SectionHeader   | Small-caps section labels                      | No — semantic        |
+| BackLink        | ← Parent navigation                            | No — semantic        |
+| MessageBubble   | Chat messages (update existing)                | No — semantic        |
+
+### @breeyard/components (SvelteKit-coupled, composes packages/ui)
+
+| Component          | Reason                                                               |
+| ------------------ | -------------------------------------------------------------------- |
+| LoginForm          | CMS + CRM + Portal login — server action + use:enhance + onSuccess   |
+| SidebarLayout      | CMS + CRM + Portal shared layout shell                               |
+| HeaderLayout       | Web + Portfolio header + nav + footer                                |
+| MessageThread      | Scrollable message thread — uses MessageBubble + use:enhance         |
+| MessageComposer    | Textarea + send button — use:enhance, composes MessageThread         |
+| ContactForm        | apps/web + apps/portfolio — use:enhance + server action              |
+| ForgotPasswordForm | Portal (extract when other apps need it)                             |
+| ResetPasswordForm  | Portal (extract when other apps need it)                             |
+
+---
+
+## 8. Updated Sequence (post-s015 re-scan)
 
 ```
-1. Decisions confirmed (bits-ui scope, token approach)
-2. tokens — define CSS token baseline in each app's app.css (Tailwind v4 @theme)
-3. t583 — packages/ui: add bits-ui dep, build all semantic elements + the 3 bits-ui composites
-4. packages/ui audit: update MessageBubble to use new primitives
-5. t582 — @breeyard/components: LoginForm + SidebarLayout (and others as extracted)
-6. App updates — replace login pages + layouts across all 5 apps
-7. t571 — E2E: re-run auth setup, verify cookies land
+1. Decisions confirmed (bits-ui scope, token approach)       ✅ DONE
+2. @breeyard/theme — token baseline, dark mode vars          ✅ DONE (t583a)
+3. packages/ui — all primitives + composites, bits-ui wired  ✅ DONE (t583b, 44 components)
+4. @breeyard/components — SvelteKit-coupled layer            🔵 NEXT (t582)
+5. App updates — login, layouts, inline patterns              ⬜
+6. t571 — E2E auth                                           ⬜
 ```
+
+Note: packages/ui built 44 components in t583b. Forward-looking components (DatePicker, Calendar,
+Pagination, FileUpload, ImageGrid, RichTextEditor, Breadcrumb, StatCard, PageHeader, SectionHeader,
+BackLink) are scoped and confirmed — build as each app needs them, not all upfront.
 
 ---
 
 ## Progress Log
 
-| Date       | Item                          | Status                    |
-| ---------- | ----------------------------- | ------------------------- |
-| 2026-05-31 | packages/ui audit             | Complete                  |
-| 2026-05-31 | App pattern scan (all 5 apps) | Complete                  |
-| 2026-05-31 | AP reference implementation   | Complete                  |
-| 2026-05-31 | Decisions documented          | Pending Bree confirmation |
+| Date       | Item                                    | Status    |
+| ---------- | --------------------------------------- | --------- |
+| 2026-05-31 | packages/ui audit                       | Complete  |
+| 2026-05-31 | App pattern scan (partial — 3 of 5)    | Complete  |
+| 2026-05-31 | AP reference implementation             | Complete  |
+| 2026-05-31 | Decisions documented + locked           | Complete  |
+| 2026-06-01 | Full app re-scan (all 5 apps, all files)| Complete  |
+| 2026-06-01 | Forward-looking components confirmed    | Complete  |

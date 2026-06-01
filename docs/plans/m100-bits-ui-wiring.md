@@ -131,35 +131,46 @@ Do NOT start t582 until t583b is reviewed and green.
 
 ### Element list (from audit + bits-ui primitive map)
 
-| Element       | bits-ui Primitive                 | Variants needed                                        |
-| ------------- | --------------------------------- | ------------------------------------------------------ |
-| Button        | bits-ui/button (or native + aria) | default, outline, ghost, destructive, link, sm/md/lg   |
-| Input         | bits-ui/input                     | default, error state, disabled                         |
-| Label         | bits-ui/label                     | default, required marker                               |
-| Textarea      | bits-ui/textarea                  | default, error state                                   |
-| Checkbox      | bits-ui/checkbox                  | default, indeterminate                                 |
-| RadioGroup    | bits-ui/radio-group               | default                                                |
-| Switch        | bits-ui/switch                    | default                                                |
-| Select        | bits-ui/select                    | default, error state (dropdown, not native)            |
-| Combobox      | bits-ui/combobox                  | default, multi-select                                  |
-| Badge         | bits-ui/badge (or span)           | default, success, warning, destructive, info, outline  |
-| StatusBadge   | Badge composite                   | maps status string → variant (client/project statuses) |
-| Avatar        | bits-ui/avatar                    | default with fallback                                  |
-| Card          | bits-ui/card                      | default, interactive (hover)                           |
-| Separator     | bits-ui/separator                 | horizontal, vertical                                   |
-| Tooltip       | bits-ui/tooltip                   | default                                                |
-| Dialog        | bits-ui/dialog                    | default, destructive (confirm)                         |
-| Sheet         | bits-ui/sheet                     | left, right side panels                                |
-| Popover       | bits-ui/popover                   | default                                                |
-| Tabs          | bits-ui/tabs                      | default, pills                                         |
-| Accordion     | bits-ui/accordion                 | default                                                |
-| Progress      | bits-ui/progress                  | default                                                |
-| Spinner       | native                            | sm/md/lg                                               |
-| Alert         | native (role=alert)               | default, success, warning, destructive, info           |
-| EmptyState    | native                            | default (message + optional CTA)                       |
-| MetaCard      | native                            | key-value metadata display                             |
-| DataTable     | native                            | slot-based columns, hover rows                         |
-| MessageBubble | native (update existing)          | sent, received                                         |
+| Element         | bits-ui Primitive                 | Variants needed                                        |
+| --------------- | --------------------------------- | ------------------------------------------------------ |
+| Button          | bits-ui/button (or native + aria) | default, outline, ghost, destructive, link, sm/md/lg   |
+| Input           | bits-ui/input                     | default, error state, disabled                         |
+| Label           | bits-ui/label                     | default, required marker                               |
+| Textarea        | bits-ui/textarea                  | default, error state                                   |
+| Checkbox        | bits-ui/checkbox                  | default, indeterminate                                 |
+| RadioGroup      | bits-ui/radio-group               | default                                                |
+| Switch          | bits-ui/switch                    | default                                                |
+| Select          | bits-ui/select                    | default, error state (dropdown, not native)            |
+| Combobox        | bits-ui/combobox                  | default, multi-select                                  |
+| Badge           | bits-ui/badge (or span)           | default, success, warning, destructive, info, outline  |
+| StatusBadge     | Badge composite                   | maps status string → variant (client/project statuses) |
+| Avatar          | bits-ui/avatar                    | default with fallback                                  |
+| Card            | bits-ui/card                      | default, interactive (hover)                           |
+| StatCard        | native (Card composite)           | metric value + label + optional link                   |
+| Separator       | bits-ui/separator                 | horizontal, vertical                                   |
+| Tooltip         | bits-ui/tooltip                   | default                                                |
+| Dialog          | bits-ui/dialog                    | default, destructive (confirm)                         |
+| Sheet           | bits-ui/sheet                     | left, right side panels                                |
+| Popover         | bits-ui/popover                   | default                                                |
+| Tabs            | bits-ui/tabs                      | default, pills                                         |
+| Accordion       | bits-ui/accordion                 | default                                                |
+| Progress        | bits-ui/progress                  | default                                                |
+| DatePicker      | bits-ui/date-picker               | single date, range                                     |
+| Calendar        | bits-ui/calendar                  | month view, week view, event slots                     |
+| Breadcrumb      | bits-ui/breadcrumb                | default with separator                                 |
+| Pagination      | native                            | prev/next + page numbers                               |
+| FileUpload      | native                            | single file, multiple, drag-drop                       |
+| ImageGrid       | native                            | grid of images with aspect ratio                       |
+| RichTextEditor  | Tiptap                            | heading, bold, italic, lists, links                    |
+| Spinner         | native                            | sm/md/lg                                               |
+| Alert           | native (role=alert)               | default, success, warning, destructive, info, form     |
+| EmptyState      | native                            | default (message + optional CTA)                       |
+| MetaCard        | native                            | key-value metadata display                             |
+| DataTable       | native                            | slot-based columns, hover rows                         |
+| PageHeader      | native                            | title slot + action slot, flex justify-between         |
+| SectionHeader   | native                            | small-caps uppercase label                             |
+| BackLink        | native                            | ← href + label                                        |
+| MessageBubble   | native (update existing)          | sent, received                                         |
 
 ### Form field composition (from primitives)
 
@@ -187,13 +198,16 @@ Label, Input, FieldError that apps use together.
 
 **SvelteKit-coupled layer. Composes packages/ui elements. Svelte + SvelteKit imports allowed.**
 
-### Components (from audit repeated patterns)
+### Components (from audit + s015 re-scan)
 
 | Component          | What it is                                             | Notes                                |
 | ------------------ | ------------------------------------------------------ | ------------------------------------ |
 | LoginForm          | use:enhance + method=post form, onSuccess escape hatch | Replaces 3 duplicate login pages     |
 | SidebarLayout      | Sidebar + main layout shell with nav, user display     | CMS + CRM + Portal                   |
 | HeaderLayout       | Centered header + nav + footer                         | Web + Portfolio (lower priority)     |
+| MessageThread      | Scrollable thread of MessageBubble + empty state       | CRM messages + Portal messages       |
+| MessageComposer    | Textarea + send + use:enhance reply form               | Composes with MessageThread          |
+| ContactForm        | Email + message form, use:enhance + server action      | Web + Portfolio contact pages        |
 | ForgotPasswordForm | Email input + success confirmation                     | Portal (extract when others need it) |
 | ResetPasswordForm  | New/confirm password fields                            | Portal (extract when others need it) |
 
@@ -313,8 +327,11 @@ export const actions: Actions = {
 
 ## Progress Log
 
-| Date       | Phase          | Status      | Notes                                           |
-| ---------- | -------------- | ----------- | ----------------------------------------------- |
-| 2026-05-31 | Audit          | Complete    | m100-audit.md written                           |
-| 2026-05-31 | Decisions      | Locked      | bits-ui everything, TV variants, per-app tokens |
-| 2026-05-31 | Implementation | Not started | Waiting on coord signal before coding           |
+| Date       | Phase          | Status      | Notes                                                       |
+| ---------- | -------------- | ----------- | ----------------------------------------------------------- |
+| 2026-05-31 | Audit          | Complete    | m100-audit.md written (partial — 3 of 5 apps scanned)      |
+| 2026-05-31 | Decisions      | Locked      | bits-ui everything, TV variants, per-app tokens             |
+| 2026-06-01 | t583a          | Done        | @breeyard/theme token baseline                              |
+| 2026-06-01 | t583b          | Done        | 44 packages/ui components, lint + typecheck green           |
+| 2026-06-01 | Full re-scan   | Complete    | All 5 apps, all files — 6 new patterns + forward components |
+| 2026-06-01 | t582           | Starting    | @breeyard/components — coord ACKed                          |
