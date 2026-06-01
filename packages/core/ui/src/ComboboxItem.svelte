@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Combobox as ComboboxPrimitive } from 'bits-ui';
-  
+
   type Props = {
     value: string;
     label?: string;
