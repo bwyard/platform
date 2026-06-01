@@ -1,0 +1,87 @@
+/*
+ * @breeyard/theme — design token baseline (light mode)
+ * Import this file in each app's app.css after @import 'tailwindcss'.
+ * Override any token in your app's own @theme block to brand per-app.
+ *
+ * Tokens follow the --color-* convention so Tailwind v4 auto-generates
+ * utilities: bg-primary, text-foreground, border-border, etc.
+ *
+ * Single source of truth for theming — future theme editor edits these values.
+ */
+
+@layer base {
+  :root {
+    /* ── Radius ─────────────────────────────────────────────────────── */
+    /* Single base value drives the whole scale. Override --radius per app. */
+    --radius: 0.5rem;
+  }
+}
+
+@theme inline {
+  /* ── Radius scale (derived from --radius) ───────────────────────── */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+  --radius-full: 9999px;
+
+  /* ── Core surfaces ──────────────────────────────────────────────── */
+  --color-background: oklch(1 0 0);
+  --color-foreground: oklch(0.141 0.005 285.823);
+
+  /* ── Card ───────────────────────────────────────────────────────── */
+  --color-card: oklch(1 0 0);
+  --color-card-foreground: oklch(0.141 0.005 285.823);
+
+  /* ── Popover / dropdown ─────────────────────────────────────────── */
+  --color-popover: oklch(1 0 0);
+  --color-popover-foreground: oklch(0.141 0.005 285.823);
+
+  /* ── Primary brand ──────────────────────────────────────────────── */
+  /* Override --color-primary per app for brand identity */
+  --color-primary: oklch(0.21 0.006 285.885);
+  --color-primary-foreground: oklch(0.985 0 0);
+
+  /* ── Secondary ──────────────────────────────────────────────────── */
+  --color-secondary: oklch(0.967 0.001 286.375);
+  --color-secondary-foreground: oklch(0.21 0.006 285.885);
+
+  /* ── Muted (subtle backgrounds, placeholder text) ───────────────── */
+  --color-muted: oklch(0.967 0.001 286.375);
+  --color-muted-foreground: oklch(0.552 0.016 285.938);
+
+  /* ── Accent (hover states, selections) ──────────────────────────── */
+  --color-accent: oklch(0.967 0.001 286.375);
+  --color-accent-foreground: oklch(0.21 0.006 285.885);
+
+  /* ── Destructive (errors, danger actions) ───────────────────────── */
+  --color-destructive: oklch(0.577 0.245 27.325);
+  --color-destructive-foreground: oklch(0.985 0 0);
+
+  /* ── Borders + inputs + focus rings ─────────────────────────────── */
+  --color-border: oklch(0.92 0.004 286.32);
+  --color-input: oklch(0.92 0.004 286.32);
+  --color-ring: oklch(0.21 0.006 285.885);
+
+  /* ── Status: success ────────────────────────────────────────────── */
+  --color-success: oklch(0.596 0.17 145.23);
+  --color-success-foreground: oklch(1 0 0);
+
+  /* ── Status: warning ────────────────────────────────────────────── */
+  --color-warning: oklch(0.769 0.188 70.08);
+  --color-warning-foreground: oklch(0.141 0.005 285.823);
+
+  /* ── Status: info ───────────────────────────────────────────────── */
+  --color-info: oklch(0.627 0.156 237.64);
+  --color-info-foreground: oklch(1 0 0);
+
+  /* ── Sidebar ────────────────────────────────────────────────────── */
+  --color-sidebar: oklch(0.985 0 0);
+  --color-sidebar-foreground: oklch(0.141 0.005 285.823);
+  --color-sidebar-primary: oklch(0.21 0.006 285.885);
+  --color-sidebar-primary-foreground: oklch(0.985 0 0);
+  --color-sidebar-accent: oklch(0.967 0.001 286.375);
+  --color-sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --color-sidebar-border: oklch(0.92 0.004 286.32);
+  --color-sidebar-ring: oklch(0.21 0.006 285.885);
+}
