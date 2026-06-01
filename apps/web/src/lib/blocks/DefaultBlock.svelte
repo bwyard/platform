@@ -1,5 +1,5 @@
 <script lang="ts">
-  const { data, blockType }: { data: Record<string, unknown>; blockType: string } = $props();
+  const { data: _data, blockType }: { data: Record<string, unknown>; blockType: string } = $props();
 </script>
 
 <!-- Fallback for block types without a registered component -->
