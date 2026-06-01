@@ -8,6 +8,10 @@ import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
+// Use the node binary already running this script + direct eslint path.
+// Avoids pnpm/npx PATH dependency — git hooks run in a minimal shell environment.
+const ESLINT_BIN = fileURLToPath(new URL('../node_modules/eslint/bin/eslint.js', import.meta.url));
+
 const LINT_EXTS = new Set(['.ts', '.js', '.mjs', '.cjs', '.svelte']);
 const ESLINT_TIMEOUT_MS = 30_000;
 
@@ -49,13 +53,18 @@ function main() {
   // No --fix: avoids re-staging footgun where partial staging would accidentally
   // commit unstaged hunks. Developers run `pnpm lint:fix` to fix before staging.
   try {
-    execFileSync('pnpm', ['exec', 'eslint', '--no-warn-ignored', ...files], {
+    execFileSync(process.execPath, [ESLINT_BIN, '--no-warn-ignored', ...files], {
       stdio: 'inherit',
       timeout: ESLINT_TIMEOUT_MS,
     });
   } catch (err) {
     if (err.signal === 'SIGTERM') {
       console.error(`pre-commit: eslint timed out after ${ESLINT_TIMEOUT_MS / 1000}s`);
+    } else if (err.status != null && err.status !== 0) {
+      // eslint exited non-zero — errors already printed above via stdio:inherit
+      console.error(`pre-commit: eslint exited with code ${String(err.status)}`);
+    } else {
+      console.error(`pre-commit: unexpected error — ${String(err)}`);
     }
     process.exit(1);
   }

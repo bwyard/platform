@@ -1,14 +1,12 @@
 <script lang="ts">
   import { Combobox as ComboboxPrimitive } from 'bits-ui';
-  import type { Snippet } from 'svelte';
-
+  
   type Props = {
     value: string;
     label?: string;
     disabled?: boolean;
     class?: string;
     ref?: HTMLElement | null;
-    children?: Snippet;
     [key: string]: unknown;
   };
   let {
@@ -17,7 +15,6 @@
     disabled,
     class: className,
     ref = $bindable(null),
-    children,
     ...restProps
   }: Props = $props();
 </script>

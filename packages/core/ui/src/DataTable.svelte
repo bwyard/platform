@@ -6,18 +6,18 @@
   // ============================================================
   import type { Snippet } from 'svelte';
 
-  interface Column<Row> {
+  type Column<Row> = {
     key: string;
     header: string;
     cell?: Snippet<[Row]>;
-  }
+  };
 
-  interface Props<Row extends Record<string, unknown>> {
+  type Props<Row extends Record<string, unknown>> = {
     columns: Column<Row>[];
     rows: Row[];
     class?: string;
     emptyMessage?: string;
-  }
+  };
 
   let { columns, rows, class: className, emptyMessage = 'No data.' }: Props<T> = $props();
 </script>
@@ -29,7 +29,7 @@
   <table class="w-full text-sm">
     <thead>
       <tr class="border-b bg-muted/50">
-        {#each columns as col}
+        {#each columns as col (col.key)}
           <th
             class="px-4 py-2.5 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase"
           >
@@ -46,9 +46,9 @@
           </td>
         </tr>
       {:else}
-        {#each rows as row}
+        {#each rows as row, i (i)}
           <tr class="border-b last:border-0 hover:bg-muted/30 transition-colors">
-            {#each columns as col}
+            {#each columns as col (col.key)}
               <td class="px-4 py-3">
                 {#if col.cell}
                   {@render col.cell(row)}

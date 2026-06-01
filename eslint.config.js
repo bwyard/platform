@@ -1,6 +1,9 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import prettierConfig from 'eslint-config-prettier';
+import * as sveltePlugin from 'eslint-plugin-svelte';
+import svelteParser from 'svelte-eslint-parser';
+import globals from 'globals';
 
 // tseslint.config is flagged as deprecated in favour of ESLint's defineConfig(),
 // but defineConfig() is not yet available as an ESM named export in eslint@10.2.0.
@@ -11,7 +14,42 @@ export default tseslint.config(
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   prettierConfig,
+
+  // Svelte rules via official flat config preset.
+  ...sveltePlugin.configs['flat/recommended'],
+
+  // Svelte parser + disable type-checked rules for .svelte files.
+  // - svelteParser handles .svelte file structure
+  // - tseslint.parser handles TypeScript in <script lang="ts"> blocks
+  // - extraFileExtensions tells the TS parser .svelte is a valid extension
+  // - disableTypeChecked: svelte-check (pnpm typecheck) owns type checking on .svelte
   {
+    files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
+    languageOptions: {
+      parser: svelteParser,
+      parserOptions: {
+        parser: tseslint.parser,
+        extraFileExtensions: ['.svelte'],
+      },
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    rules: {
+      ...tseslint.configs.disableTypeChecked.rules,
+      // Svelte 5 component props use `type Props = {...}` by convention — no extension/inheritance.
+      // stylisticTypeChecked defaults to 'interface'; override to 'type' for .svelte files.
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+    },
+  },
+
+  // Apps + root-level files: full type-checked linting via projectService.
+  // projectService scoped here because it hangs when TypeScript Language Service
+  // is initialised from within a package subdirectory (how nx invokes eslint).
+  // Packages are NOT in this block — tsc (pnpm typecheck) owns type safety there.
+  {
+    files: ['apps/**/*.{ts,js,mjs,cjs}', '*.{ts,js,mjs,cjs}'],
     languageOptions: {
       parserOptions: {
         projectService: {
@@ -25,7 +63,6 @@ export default tseslint.config(
             'apps/portfolio/svelte.config.js',
             // apps/admin kept until directory is manually deleted
             'apps/admin/svelte.config.js',
-            'packages/core/database/drizzle.config.ts',
             'playwright.config.weekly.ts',
           ],
         },
@@ -33,6 +70,17 @@ export default tseslint.config(
       },
     },
   },
+
+  // Packages: disable type-checked rules — tsc (pnpm typecheck) owns type safety.
+  // projectService hangs when initialised from a package CWD due to .svelte import
+  // resolution differences; syntax + stylistic rules still apply.
+  {
+    files: ['packages/**/*.{ts,js,mjs,cjs}'],
+    rules: {
+      ...tseslint.configs.disableTypeChecked.rules,
+    },
+  },
+
   {
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
@@ -40,6 +88,7 @@ export default tseslint.config(
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
+
   // Root config files (vitest, playwright) use tool types not hoisted to root —
   // type-unsafe rules produce false positives here.
   {
@@ -52,6 +101,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
+
   // Test files — workspace deps (test-utils, etc.) may not have dist built locally,
   // causing unsafe-* false positives. Relax type-safety rules for test files only.
   {
@@ -65,6 +115,7 @@ export default tseslint.config(
       '@typescript-eslint/restrict-template-expressions': 'off',
     },
   },
+
   {
     ignores: [
       '**/node_modules/**',
