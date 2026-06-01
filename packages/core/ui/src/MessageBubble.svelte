@@ -10,12 +10,12 @@
   // tokens are wired into apps.
   // ============================================================
 
-  interface Props {
+  type Props = {
     body: string;
     sent: boolean;
     senderLabel: string;
     timestamp: string;
-  }
+  };
 
   const { body, sent, senderLabel, timestamp }: Props = $props();
 
@@ -30,13 +30,13 @@
 
 <div data-testid="message-item" class="flex {sent ? 'justify-end' : 'justify-start'}">
   <div class="max-w-lg space-y-1">
-    <p class="text-xs text-gray-400 {sent ? 'text-right' : 'text-left'}">
+    <p class="text-xs text-muted-foreground {sent ? 'text-right' : 'text-left'}">
       {senderLabel} · {formatTime(timestamp)}
     </p>
     <div
       class="rounded-2xl px-4 py-3 text-sm leading-relaxed {sent
-        ? 'rounded-tr-sm bg-gray-900 text-white'
-        : 'rounded-tl-sm bg-gray-100 text-gray-900'}"
+        ? 'rounded-tr-sm bg-foreground text-background'
+        : 'rounded-tl-sm bg-muted text-foreground'}"
     >
       <p class="whitespace-pre-wrap">{body}</p>
     </div>

@@ -4,7 +4,6 @@ import { config } from '../config';
 
 interface Fixtures {
   urls: typeof config.urls;
-  credentials: typeof config.credentials;
   authedPage: Page;
   unauthedPage: Page;
 }
@@ -12,8 +11,6 @@ interface Fixtures {
 const test = base.extend<Fixtures>({
   // eslint-disable-next-line no-empty-pattern
   urls: async ({}, use) => use(config.urls),
-  // eslint-disable-next-line no-empty-pattern
-  credentials: async ({}, use) => use(config.credentials),
   // authedPage is the standard page fixture re-exported under an explicit name.
   // The project storageState (set in playwright.config.ts) provides auth.
   authedPage: async ({ page }, use) => use(page),

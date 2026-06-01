@@ -118,7 +118,6 @@ export const createMailClient = (config: MailConfig, transport?: Transporter): M
       ...(message.replyTo ? { replyTo: message.replyTo } : {}),
     };
     // BOUNDARY: SMTP send.
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const info = await transporter.sendMail(options);
 
     return toMailResult(info as { messageId: string; accepted: unknown[]; rejected: unknown[] });

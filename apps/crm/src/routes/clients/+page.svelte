@@ -7,13 +7,7 @@
   let search = $state('');
   let statusFilter = $state<ClientStatus | 'all'>('all');
 
-  const statuses: Array<ClientStatus | 'all'> = [
-    'all',
-    'prospect',
-    'active',
-    'inactive',
-    'churned',
-  ];
+  const statuses: (ClientStatus | 'all')[] = ['all', 'prospect', 'active', 'inactive', 'churned'];
 
   const filtered = $derived(
     data.clients.filter((c) => {

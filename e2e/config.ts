@@ -2,7 +2,6 @@ const optional = (key: string, fallback: string): string => process.env[key] ?? 
 
 export const config = {
   urls: {
-    api: optional('E2E_API_URL', 'http://localhost:3010'),
     web: optional('E2E_WEB_URL', 'http://localhost:3011'),
     cms: optional('E2E_CMS_URL', 'http://localhost:3012'),
     crm: optional('E2E_CRM_URL', 'http://localhost:3013'),
@@ -21,4 +20,5 @@ export const config = {
   },
 } as const;
 
+export type AppKey = keyof typeof config.urls;
 export type Config = typeof config;

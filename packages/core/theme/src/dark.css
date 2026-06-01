@@ -1,0 +1,64 @@
+/*
+ * @breeyard/theme — dark mode overrides
+ * Import after theme.css. Applies when the .dark class is on <html> or <body>.
+ * Each token flips to a dark-appropriate value; status colors stay the same.
+ */
+
+@theme inline {
+  .dark {
+    /* ── Core surfaces ────────────────────────────────────────────── */
+    --color-background: oklch(0.141 0.005 285.823);
+    --color-foreground: oklch(0.985 0 0);
+
+    /* ── Card ─────────────────────────────────────────────────────── */
+    --color-card: oklch(0.21 0.006 285.885);
+    --color-card-foreground: oklch(0.985 0 0);
+
+    /* ── Popover ──────────────────────────────────────────────────── */
+    --color-popover: oklch(0.21 0.006 285.885);
+    --color-popover-foreground: oklch(0.985 0 0);
+
+    /* ── Primary (flipped in dark — white on dark bg) ─────────────── */
+    --color-primary: oklch(0.985 0 0);
+    --color-primary-foreground: oklch(0.21 0.006 285.885);
+
+    /* ── Secondary ────────────────────────────────────────────────── */
+    --color-secondary: oklch(0.274 0.006 286.033);
+    --color-secondary-foreground: oklch(0.985 0 0);
+
+    /* ── Muted ────────────────────────────────────────────────────── */
+    --color-muted: oklch(0.274 0.006 286.033);
+    --color-muted-foreground: oklch(0.705 0.015 286.067);
+
+    /* ── Accent ───────────────────────────────────────────────────── */
+    --color-accent: oklch(0.274 0.006 286.033);
+    --color-accent-foreground: oklch(0.985 0 0);
+
+    /* ── Destructive ──────────────────────────────────────────────── */
+    --color-destructive: oklch(0.704 0.191 22.216);
+    --color-destructive-foreground: oklch(0.985 0 0);
+
+    /* ── Borders + inputs + focus rings ──────────────────────────── */
+    --color-border: oklch(1 0 0 / 10%);
+    --color-input: oklch(1 0 0 / 15%);
+    --color-ring: oklch(0.552 0.016 285.938);
+
+    /* ── Status (unchanged in dark — OKLCH keeps them readable) ───── */
+    --color-success: oklch(0.596 0.17 145.23);
+    --color-success-foreground: oklch(1 0 0);
+    --color-warning: oklch(0.769 0.188 70.08);
+    --color-warning-foreground: oklch(0.141 0.005 285.823);
+    --color-info: oklch(0.627 0.156 237.64);
+    --color-info-foreground: oklch(1 0 0);
+
+    /* ── Sidebar ──────────────────────────────────────────────────── */
+    --color-sidebar: oklch(0.21 0.006 285.885);
+    --color-sidebar-foreground: oklch(0.985 0 0);
+    --color-sidebar-primary: oklch(0.985 0 0);
+    --color-sidebar-primary-foreground: oklch(0.21 0.006 285.885);
+    --color-sidebar-accent: oklch(0.274 0.006 286.033);
+    --color-sidebar-accent-foreground: oklch(0.985 0 0);
+    --color-sidebar-border: oklch(1 0 0 / 10%);
+    --color-sidebar-ring: oklch(0.552 0.016 285.938);
+  }
+}

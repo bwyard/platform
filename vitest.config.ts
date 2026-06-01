@@ -14,7 +14,11 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['packages/**/src/**/*.test.{ts,js}', 'apps/api/src/**/*.test.{ts,js}'],
+    include: [
+      'packages/**/src/**/*.test.{ts,js}',
+      'apps/api/src/**/*.test.{ts,js}',
+      'scripts/**/*.test.{ts,js}',
+    ],
     exclude: ['**/node_modules/**', '**/dist/**', '**/.svelte-kit/**'],
     passWithNoTests: true,
     coverage: {

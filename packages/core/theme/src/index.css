@@ -1,0 +1,19 @@
+/*
+ * @breeyard/theme/index.css — convenience bundle: light + dark mode tokens
+ *
+ * Usage in app.css:
+ *   @import 'tailwindcss';
+ *   @import '@breeyard/theme/index.css';
+ *
+ * Per-app brand override (add after the imports if needed):
+ *   @theme {
+ *     --color-primary: oklch(0.45 0.2 240);
+ *     --color-primary-foreground: oklch(0.985 0 0);
+ *   }
+ *
+ * tailwindcss must stay as the first import in each app — it is app-level config.
+ * Dark mode activates via the .dark class on <html> or <body>.
+ */
+
+@import './theme.css';
+@import './dark.css';

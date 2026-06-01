@@ -16,7 +16,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@breeyard/config": "workspace:*"
+    "@breeyard/config": "workspace:*",
+    "@sveltejs/kit": "2.61.1"
   },
   "devDependencies": {
     "@types/node": "24.12.4",
