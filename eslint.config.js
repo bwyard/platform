@@ -75,6 +75,7 @@ export default tseslint.config(
       '**/.nx/**',
       '**/coverage/**',
       'scripts/**',
+      '**/*.d.ts',
     ],
   },
 );
